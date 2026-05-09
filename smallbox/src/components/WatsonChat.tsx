@@ -172,10 +172,10 @@ export function WatsonChat() {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1, boxShadow: "0 0 32px rgba(0,98,255,0.6)" }}
+            whileHover={{ scale: 1.1, boxShadow: "0 0 32px rgba(123,47,255,0.6)" }}
             whileTap={{ scale: 0.92 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-[0_4px_24px_rgba(0,98,255,0.5)] glow-animation"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#1a0845] flex items-center justify-center shadow-[0_4px_24px_rgba(26,8,69,0.8)] border border-white/10"
           >
             <MessageSquare size={22} className="text-white" />
           </motion.button>
@@ -195,7 +195,7 @@ export function WatsonChat() {
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-black/8 dark:border-white/8 shrink-0 bg-black/5 dark:bg-white/5">
-              <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(0,98,255,0.5)]">
+              <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(123,47,255,0.5)]">
                 <Sparkles size={15} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">

@@ -56,7 +56,7 @@ export default function WebsiteBuilderPage() {
     description: "",
     services: ["", "", ""],
     tone: "professional",
-    primaryColor: "#0062ff",
+    primaryColor: "#7b2fff",
     contactForm: true,
     bookingForm: false,
     logo: false,
@@ -89,7 +89,7 @@ export default function WebsiteBuilderPage() {
                     onClick={() => s.id < step && setStep(s.id)}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       step === s.id
-                        ? "bg-primary text-white shadow-[0_0_16px_rgba(0,98,255,0.35)]"
+                        ? "bg-primary text-white shadow-[0_0_16px_rgba(123,47,255,0.35)]"
                         : step > s.id
                         ? "bg-emerald-500/12 text-emerald-500 border border-emerald-500/30 cursor-pointer"
                         : "bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 border border-black/10 dark:border-white/10"
@@ -212,7 +212,7 @@ export default function WebsiteBuilderPage() {
                         <input type="color" value={form.primaryColor} onChange={(e) => setForm({ ...form, primaryColor: e.target.value })} className="w-10 h-10 rounded-lg cursor-pointer border border-black/10 dark:border-white/10 bg-transparent" />
                         <input value={form.primaryColor} onChange={(e) => setForm({ ...form, primaryColor: e.target.value })} className={`${inputCls} font-mono`} />
                         <div className="flex gap-2">
-                          {["#0062ff", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"].map((c) => (
+                          {["#7b2fff", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"].map((c) => (
                             <button key={c} onClick={() => setForm({ ...form, primaryColor: c })} className="w-7 h-7 rounded-full border-2 transition-all" style={{ background: c, borderColor: form.primaryColor === c ? "#fff" : "transparent" }} />
                           ))}
                         </div>
@@ -307,20 +307,20 @@ export default function WebsiteBuilderPage() {
 
                   {step < 5 ? (
                     <motion.button
-                      whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(0,98,255,0.35)" }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(123,47,255,0.35)" }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => setStep(step + 1)}
-                      className="flex items-center gap-2 px-6 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all shadow-[0_0_16px_rgba(0,98,255,0.3)]"
+                      className="flex items-center gap-2 px-6 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all shadow-[0_0_16px_rgba(123,47,255,0.3)]"
                     >
                       Continue<ChevronRight size={16} />
                     </motion.button>
                   ) : (
                     <motion.button
-                      whileHover={{ scale: 1.03, boxShadow: "0 0 28px rgba(0,98,255,0.5)" }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 0 28px rgba(123,47,255,0.5)" }}
                       whileTap={{ scale: 0.97 }}
                       onClick={handleGenerate}
                       disabled={generating}
-                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 disabled:opacity-70 transition-all shadow-[0_0_16px_rgba(0,98,255,0.3)]"
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 disabled:opacity-70 transition-all shadow-[0_0_16px_rgba(123,47,255,0.3)]"
                     >
                       {generating ? (
                         <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><Sparkles size={16} /></motion.div>Generating with watsonx.ai...</>
@@ -380,9 +380,9 @@ export default function WebsiteBuilderPage() {
 
             <div className="flex gap-4">
               <motion.button
-                whileHover={{ scale: 1.03, boxShadow: "0 0 28px rgba(0,98,255,0.4)" }}
+                whileHover={{ scale: 1.03, boxShadow: "0 0 28px rgba(123,47,255,0.4)" }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-all shadow-[0_0_16px_rgba(0,98,255,0.3)]"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-all shadow-[0_0_16px_rgba(123,47,255,0.3)]"
               >
                 <Rocket size={16} />Publish Website
               </motion.button>

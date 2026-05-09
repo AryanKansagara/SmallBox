@@ -109,7 +109,7 @@ export default function SettingsPage() {
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 + i * 0.06 }}
-                whileHover={{ borderColor: "rgba(0,98,255,0.3)" }}
+                whileHover={{ borderColor: "rgba(123,47,255,0.3)" }}
                 className="flex items-center justify-between p-3 rounded-xl border border-black/6 dark:border-white/6 bg-black/3 dark:bg-white/4 transition-all"
               >
                 <div className="flex items-center gap-2.5">
@@ -214,7 +214,7 @@ export default function SettingsPage() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_16px_rgba(0,98,255,0.4)]">
+              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_16px_rgba(123,47,255,0.4)]">
                 <Zap size={16} className="text-white" fill="white" />
               </div>
               <div>
