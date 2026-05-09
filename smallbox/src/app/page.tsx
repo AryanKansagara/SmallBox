@@ -83,7 +83,7 @@ export default function LandingPage() {
           <Link href="/dashboard" className="text-sm text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors hidden sm:block">
             Sign In
           </Link>
-          <Link href="/dashboard">
+          <Link href="/onboarding">
             <motion.button
               whileHover={{ scale: 1.04, boxShadow: "0 0 24px rgba(0,98,255,0.5)" }}
               whileTap={{ scale: 0.96 }}
@@ -133,7 +133,7 @@ export default function LandingPage() {
               </motion.p>
 
               <motion.div variants={fadeUp} custom={3} className="flex items-center gap-4 flex-wrap mb-8">
-                <Link href="/dashboard">
+                <Link href="/onboarding">
                   <motion.button
                     whileHover={{ scale: 1.04, boxShadow: "0 0 32px rgba(0,98,255,0.5)" }}
                     whileTap={{ scale: 0.96 }}
@@ -375,7 +375,7 @@ export default function LandingPage() {
           <div className="relative px-10 py-16 text-center">
             <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">Ready to level the playing field?</h2>
             <p className="text-blue-100 text-lg mb-8 max-w-xl mx-auto">Join thousands of small businesses using IBM enterprise tools — completely free.</p>
-            <Link href="/dashboard">
+            <Link href="/onboarding">
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(255,255,255,0.3)" }}
                 whileTap={{ scale: 0.96 }}
