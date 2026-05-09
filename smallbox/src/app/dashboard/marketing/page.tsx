@@ -5,6 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { type NluAnalyzeResponse } from "@/lib/ibm-nlu";
 import {
+  createEmailCampaignDraft,
+  parseEmailRecipients,
+  type EmailCampaignDraft,
+  type EmailCampaignTemplate,
+  type EmailCampaignTone,
+} from "@/lib/email-campaign";
+import {
   Sparkles,
   Mail,
   Star,
@@ -38,7 +45,13 @@ const emailTemplates = [
   { id: "promotional", label: "Promotional", icon: Star },
   { id: "newsletter", label: "Newsletter", icon: Mail },
   { id: "announcement", label: "Announcement", icon: MessageSquare },
-];
+] as const;
+
+const emailTones = [
+  { id: "friendly", label: "Friendly" },
+  { id: "professional", label: "Professional" },
+  { id: "bold", label: "Bold" },
+] as const;
 
 const reviews = [
   "The cake was absolutely amazing! Perfect flavor and beautiful decoration. Will order again!",
@@ -58,8 +71,20 @@ export default function MarketingPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<NluAnalyzeResponse | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [emailTemplate, setEmailTemplate] = useState("promotional");
-  const [emailList, setEmailList] = useState("");
+  const [emailTemplate, setEmailTemplate] = useState<EmailCampaignTemplate>("promotional");
+  const [emailTone, setEmailTone] = useState<EmailCampaignTone>("friendly");
+  const [emailBusinessName, setEmailBusinessName] = useState("Sweet Crumbs Bakery");
+  const [emailAudience, setEmailAudience] = useState("recent customers");
+  const [emailOffer, setEmailOffer] = useState("20% off all custom cakes this weekend");
+  const [emailRecipients, setEmailRecipients] = useState("lisa@example.com\nmark@example.com");
+  const [emailDraft, setEmailDraft] = useState<EmailCampaignDraft | null>(null);
+  const [emailGenerating, setEmailGenerating] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  const parsedRecipients = parseEmailRecipients(emailRecipients);
+  const recipientCount = parsedRecipients.valid.length;
 
   const handleGenerate = () => {
     setGenerating(true);
@@ -75,6 +100,115 @@ export default function MarketingPage() {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
+  const handleGenerateEmailDraft = async () => {
+    if (emailGenerating) return;
+
+    setEmailError(null);
+    setEmailStatus(null);
+    setEmailGenerating(true);
+
+    try {
+      const response = await fetch("/api/ibm/watsonx/generate-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          template: emailTemplate,
+          tone: emailTone,
+          businessName: emailBusinessName,
+          audience: emailAudience,
+          offer: emailOffer,
+          recipientCount,
+        }),
+      });
+
+      const data = (await response.json()) as { draft?: EmailCampaignDraft; error?: string };
+      if (!response.ok || !data.draft) {
+        setEmailDraft(null);
+        setEmailError(data.error ?? "Unable to generate an email draft right now.");
+        return;
+      }
+
+      setEmailDraft(data.draft);
+      setEmailStatus(`Draft ready for ${recipientCount} recipient${recipientCount === 1 ? "" : "s"}.`);
+    } catch {
+      setEmailDraft(null);
+      setEmailError("Network error while generating the email draft.");
+    } finally {
+      setEmailGenerating(false);
+    }
+  };
+
+  const handleSendCampaign = async () => {
+    if (recipientCount === 0) {
+      setEmailError("Add at least one valid recipient before sending.");
+      return;
+    }
+
+    if (emailSending) return;
+
+    setEmailError(null);
+    setEmailStatus(null);
+    setEmailSending(true);
+
+    try {
+      const response = await fetch("/api/campaigns/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          recipients: parsedRecipients.valid,
+          draft: draftPreview,
+          businessName: emailBusinessName,
+          emailList: emailRecipients,
+        }),
+      });
+
+      const data = (await response.json()) as {
+        acceptedCount?: number;
+        rejectedRecipients?: string[];
+        invalidRecipients?: string[];
+        providerErrors?: string[];
+        message?: string;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        setEmailError(data.error ?? "Unable to send the campaign right now.");
+        return;
+      }
+
+      const acceptedCount = data.acceptedCount ?? 0;
+      const rejectedCount = data.rejectedRecipients?.length ?? 0;
+
+      setEmailStatus(
+        data.message ?? `Sent ${acceptedCount} email${acceptedCount === 1 ? "" : "s"} successfully.`
+      );
+
+      if (rejectedCount > 0) {
+        setEmailError(
+          `Some recipients were rejected: ${data.rejectedRecipients?.join(", ") ?? "unknown"}`
+        );
+      }
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
+  const draftPreview =
+    emailDraft ??
+    createEmailCampaignDraft({
+      businessName: emailBusinessName,
+      audience: emailAudience,
+      template: emailTemplate,
+      tone: emailTone,
+      offer: emailOffer,
+    });
+
+  const analysisData = analysisResult as NluAnalyzeResponse;
+
   const handleAnalyze = async () => {
     if (!reviewText.trim() || analyzing) return;
 
@@ -89,10 +223,10 @@ export default function MarketingPage() {
         body: JSON.stringify({ reviewsText: reviewText }),
       });
 
-      const data = (await response.json()) as NluAnalyzeResponse | { error?: string };
+      const data = (await response.json()) as { error?: string } | NluAnalyzeResponse;
       if (!response.ok) {
         setAnalysisResult(null);
-        setAnalysisError(data.error ?? "Watson NLU could not analyze these reviews.");
+        setAnalysisError("error" in data ? data.error ?? "Watson NLU could not analyze these reviews." : "Watson NLU could not analyze these reviews.");
         return;
       }
 
@@ -276,6 +410,55 @@ export default function MarketingPage() {
                   <p className="text-xs text-[#4b5e7a]">Send AI-crafted emails to your customer list</p>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Business Name</label>
+                    <input
+                      value={emailBusinessName}
+                      onChange={(e) => setEmailBusinessName(e.target.value)}
+                      className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Audience</label>
+                    <input
+                      value={emailAudience}
+                      onChange={(e) => setEmailAudience(e.target.value)}
+                      className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Tone</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {emailTones.map((tone) => (
+                        <button
+                          key={tone.id}
+                          type="button"
+                          onClick={() => setEmailTone(tone.id)}
+                          className={`rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
+                            emailTone === tone.id
+                              ? "bg-[#0062ff]/15 border-[#0062ff]/40 text-white"
+                              : "bg-[#1a2235] border-[#2a3a55] text-[#8b9cb6] hover:border-[#0062ff]/20"
+                          }`}
+                        >
+                          {tone.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Offer</label>
+                    <input
+                      value={emailOffer}
+                      onChange={(e) => setEmailOffer(e.target.value)}
+                      className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Template</label>
                   <div className="space-y-2">
@@ -300,23 +483,53 @@ export default function MarketingPage() {
                 <div>
                   <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Email List</label>
                   <textarea
-                    value={emailList}
-                    onChange={(e) => setEmailList(e.target.value)}
+                    value={emailRecipients}
+                    onChange={(e) => {
+                      setEmailRecipients(e.target.value);
+                      setEmailStatus(null);
+                    }}
                     placeholder="Paste emails (one per line) or upload CSV..."
                     rows={4}
                     className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm placeholder:text-[#4b5e7a] outline-none resize-none transition-colors"
                   />
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+                    <span className="text-[#8b9cb6]">{recipientCount} valid recipient{recipientCount === 1 ? "" : "s"}</span>
+                    {parsedRecipients.invalid.length > 0 && (
+                      <span className="text-[#ef4444]">{parsedRecipients.invalid.length} invalid entr{parsedRecipients.invalid.length === 1 ? "y" : "ies"}</span>
+                    )}
+                  </div>
                   <p className="text-xs text-[#4b5e7a] mt-1">Or <button className="text-[#0062ff] hover:underline">upload CSV file</button></p>
                 </div>
 
                 <motion.button
                   whileHover={{ scale: 1.03, boxShadow: "0 0 20px rgba(0,98,255,0.4)" }}
                   whileTap={{ scale: 0.97 }}
+                  onClick={handleGenerateEmailDraft}
+                  disabled={emailGenerating}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0062ff] text-white font-semibold text-sm"
                 >
-                  <Sparkles size={16} />
-                  Generate Email Content
+                  {emailGenerating ? (
+                    <>
+                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                        <Sparkles size={16} />
+                      </motion.div>
+                      Generating draft...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={16} />
+                      Generate Email Content
+                    </>
+                  )}
                 </motion.button>
+
+                {emailError && <p className="text-sm text-[#ef4444]">{emailError}</p>}
+                {emailStatus && <p className="text-sm text-[#10b981]">{emailStatus}</p>}
+                {parsedRecipients.invalid.length > 0 && (
+                  <div className="rounded-xl border border-[#ef4444]/20 bg-[#1a2235] p-3 text-xs text-[#fca5a5]">
+                    Invalid recipients: {parsedRecipients.invalid.join(", ")}
+                  </div>
+                )}
               </div>
 
               {/* Preview */}
@@ -324,7 +537,11 @@ export default function MarketingPage() {
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="font-semibold text-white">Email Preview</h3>
                   <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-1.5 text-xs text-[#8b9cb6] hover:text-white transition-colors">
+                    <button
+                      type="button"
+                      onClick={handleGenerateEmailDraft}
+                      className="flex items-center gap-1.5 text-xs text-[#8b9cb6] hover:text-white transition-colors"
+                    >
                       <RefreshCw size={12} /> Regenerate
                     </button>
                   </div>
@@ -334,36 +551,54 @@ export default function MarketingPage() {
                   <div className="border-b border-gray-100 pb-3 mb-4">
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-6 h-6 rounded bg-[#0062ff] flex items-center justify-center">
-                        <span className="text-white text-[8px] font-bold">SC</span>
+                        <span className="text-white text-[8px] font-bold">SB</span>
                       </div>
-                      <span className="font-bold text-sm">Sweet Crumbs Bakery</span>
+                      <span className="font-bold text-sm">{emailBusinessName}</span>
                     </div>
-                    <p className="text-xs text-gray-400">🎉 May Special: 20% Off All Custom Cakes This Weekend!</p>
+                    <p className="text-xs text-gray-400">{draftPreview.subject}</p>
                   </div>
-                  <p className="text-sm font-semibold mb-2">Hi there! 👋</p>
-                  <p className="text-xs text-gray-600 leading-relaxed mb-3">
-                    We&apos;re celebrating spring with an exclusive 20% discount on all custom cake orders placed this weekend only.
-                    Whether it&apos;s a birthday, wedding, or just a Tuesday — you deserve something delicious.
-                  </p>
+                  <p className="text-sm font-semibold mb-2">{draftPreview.preheader}</p>
+                  <div className="space-y-3 text-xs text-gray-600 leading-relaxed mb-3">
+                    {draftPreview.body.split(/\n\n/).map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
                   <div className="bg-[#0062ff] text-white text-center py-2.5 rounded-xl text-sm font-semibold mb-3">
-                    Order Now — 20% Off Ends Sunday
+                    {draftPreview.ctaLabel}
                   </div>
                   <p className="text-xs text-gray-400 text-center">
-                    Sweet Crumbs Bakery · Mississauga, ON · <span className="underline cursor-pointer">Unsubscribe</span>
+                    {emailAudience} · {recipientCount} recipient{recipientCount === 1 ? "" : "s"} · <span className="underline cursor-pointer">Unsubscribe</span>
                   </p>
                 </div>
+
+                {emailDraft === null && (
+                  <p className="mt-3 text-xs text-[#4b5e7a]">Preview is currently using the live draft generator defaults.</p>
+                )}
 
                 <div className="flex items-center gap-3 mt-4">
                   <div className="flex items-center gap-1.5 text-xs text-[#4b5e7a]">
                     <Users size={12} />
-                    <span>0 recipients</span>
+                    <span>{recipientCount} recipient{recipientCount === 1 ? "" : "s"}</span>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.04, boxShadow: "0 0 16px rgba(0,98,255,0.4)" }}
                     whileTap={{ scale: 0.96 }}
+                    onClick={handleSendCampaign}
+                    disabled={emailSending}
                     className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0062ff] text-white text-sm font-semibold"
                   >
-                    <Send size={13} /> Send Campaign
+                    {emailSending ? (
+                      <>
+                        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                          <Send size={13} />
+                        </motion.div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={13} /> Send Campaign
+                      </>
+                    )}
                   </motion.button>
                 </div>
               </div>
@@ -470,48 +705,48 @@ export default function MarketingPage() {
                             <motion.path
                               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                               fill="none"
-                              stroke={analysisResult.label === "negative" ? "#ef4444" : analysisResult.label === "neutral" ? "#f59e0b" : "#10b981"}
+                              stroke={analysisData.label === "negative" ? "#ef4444" : analysisData.label === "neutral" ? "#f59e0b" : "#10b981"}
                               strokeWidth="3"
-                              strokeDasharray={`${analysisResult.overallScore}, 100`}
+                              strokeDasharray={`${analysisData.overallScore}, 100`}
                               strokeLinecap="round"
                               initial={{ strokeDasharray: "0, 100" }}
-                              animate={{ strokeDasharray: `${analysisResult.overallScore}, 100` }}
+                              animate={{ strokeDasharray: `${analysisData.overallScore}, 100` }}
                               transition={{ duration: 1.2, ease: "easeOut" }}
                             />
                           </svg>
                           <div className="absolute inset-0 flex items-center justify-center">
                             <span className={`text-2xl font-black ${
-                              analysisResult.label === "negative"
+                              analysisData.label === "negative"
                                 ? "text-[#ef4444]"
-                                : analysisResult.label === "neutral"
+                                : analysisData.label === "neutral"
                                 ? "text-[#f59e0b]"
                                 : "text-[#10b981]"
                             }`}>
-                              {analysisResult.overallScore}
+                              {analysisData.overallScore}
                             </span>
                           </div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-white font-medium mb-1 capitalize">{analysisResult.label} sentiment</p>
-                          <p className="text-xs text-[#4b5e7a]">Based on {analysisResult.reviewCount} reviews analyzed by Watson NLU</p>
+                          <p className="text-sm text-white font-medium mb-1 capitalize">{analysisData.label} sentiment</p>
+                          <p className="text-xs text-[#4b5e7a]">Based on {analysisData.reviewCount} reviews analyzed by Watson NLU</p>
                           <div className="flex gap-3 mt-3">
                             <span className={`flex items-center gap-1 text-xs ${
-                              analysisResult.label === "negative"
+                              analysisData.label === "negative"
                                 ? "text-[#ef4444]"
-                                : analysisResult.label === "neutral"
+                                : analysisData.label === "neutral"
                                 ? "text-[#f59e0b]"
                                 : "text-[#10b981]"
                             }`}>
                               <ThumbsUp size={12} />
-                              {analysisResult.label === "negative"
+                              {analysisData.label === "negative"
                                 ? "Needs Attention"
-                                : analysisResult.label === "neutral"
+                                : analysisData.label === "neutral"
                                 ? "Mixed Feedback"
                                 : "Mostly Positive"}
                             </span>
                             <span className="flex items-center gap-1 text-xs text-[#f59e0b]">
                               <MessageSquare size={12} />
-                              {analysisResult.negativeThemes.length > 0 ? `${analysisResult.negativeThemes.length} Areas to Improve` : "No major issues detected"}
+                              {analysisData.negativeThemes.length > 0 ? `${analysisData.negativeThemes.length} Areas to Improve` : "No major issues detected"}
                             </span>
                           </div>
                         </div>
@@ -528,9 +763,9 @@ export default function MarketingPage() {
                       <h4 className="font-semibold text-white mb-4">Key Themes</h4>
                       <div className="mb-3">
                         <p className="text-xs text-[#10b981] font-semibold mb-2">✓ Positive mentions</p>
-                        {analysisResult.positiveThemes.length > 0 ? (
+                        {analysisData.positiveThemes.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
-                            {analysisResult.positiveThemes.map((k) => (
+                            {analysisData.positiveThemes.map((k) => (
                               <span key={k} className="px-2.5 py-1 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs font-medium">{k}</span>
                             ))}
                           </div>
@@ -540,9 +775,9 @@ export default function MarketingPage() {
                       </div>
                       <div>
                         <p className="text-xs text-[#ef4444] font-semibold mb-2">⚠ Areas of concern</p>
-                        {analysisResult.negativeThemes.length > 0 ? (
+                        {analysisData.negativeThemes.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
-                            {analysisResult.negativeThemes.map((k) => (
+                            {analysisData.negativeThemes.map((k) => (
                               <span key={k} className="px-2.5 py-1 rounded-full bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-xs font-medium">{k}</span>
                             ))}
                           </div>
@@ -564,7 +799,7 @@ export default function MarketingPage() {
                         AI Recommendations
                       </h4>
                       <div className="space-y-3">
-                        {analysisResult.suggestions.map((s, i) => (
+                        {analysisData.suggestions.map((s, i) => (
                           <div key={i} className="flex items-start gap-2">
                             <span className="text-[#0062ff] text-sm mt-0.5">{i + 1}.</span>
                             <p className="text-sm text-[#8b9cb6]">{s}</p>
