@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SmallBox
+
+SmallBox is a Next.js dashboard prototype for small businesses built around IBM-powered website generation, finance tooling, and marketing workflows.
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Copy the example environment file and fill in your IBM Watson NLU credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+Required variables:
+
+- `IBM_NLU_API_KEY`
+- `IBM_NLU_URL`
+- `IBM_NLU_VERSION` optional, defaults to `2022-08-10`
+
+3. Start the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000), then go to `Dashboard -> Marketing -> Review Analyzer`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Watson NLU Integration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The first live IBM integration is the Review Analyzer:
 
-## Learn More
+- UI: `src/app/dashboard/marketing/page.tsx`
+- API route: `src/app/api/ibm/nlu/analyze/route.ts`
+- Shared types/helpers: `src/lib/ibm-nlu.ts`
 
-To learn more about Next.js, take a look at the following resources:
+The browser sends pasted review text to the local API route, and the server calls IBM Watson Natural Language Understanding with:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `sentiment`
+- `keywords`
+- `categories`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Credentials stay server-side only.

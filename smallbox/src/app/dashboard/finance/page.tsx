@@ -10,7 +10,6 @@ import {
   Upload,
   ArrowUpRight,
   ArrowDownRight,
-  Filter,
   Download,
   X,
   Pencil,
@@ -451,7 +450,7 @@ export default function FinancePage() {
                   <p className="text-center text-[#4b5e7a] text-sm py-10">No budgets set yet. Add one above.</p>
                 ) : (
                   <div className="space-y-5">
-                    {budgets.map((b, i) => {
+                    {budgets.map((b) => {
                       const used = budgetUsed[b.category] ?? 0;
                       const pct = b.total > 0 ? Math.round((used / b.total) * 100) : 0;
                       const barColor = pct >= 100 ? "#ef4444" : pct >= 80 ? "#f59e0b" : b.color;

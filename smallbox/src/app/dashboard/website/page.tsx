@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import {
-  Globe,
   ChevronRight,
   ChevronLeft,
   Sparkles,
@@ -259,7 +258,7 @@ export default function WebsiteBuilderPage() {
                   <div className="space-y-6">
                     <div>
                       <h2 className="text-xl font-semibold text-white mb-1">Add features</h2>
-                      <p className="text-sm text-[#4b5e7a]">Select what you'd like to include on your site.</p>
+                      <p className="text-sm text-[#4b5e7a]">Select what you&apos;d like to include on your site.</p>
                     </div>
                     <div className="space-y-3">
                       {[

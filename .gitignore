@@ -24,6 +24,7 @@ smallbox/.yarn/*
 
 # Env files
 smallbox/.env*
+!smallbox/.env.example
 .env*
 
 # Debug logs

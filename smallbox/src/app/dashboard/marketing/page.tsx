@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { type NluAnalyzeResponse } from "@/lib/ibm-nlu";
 import {
   Sparkles,
   Mail,
@@ -10,7 +11,6 @@ import {
   Copy,
   RefreshCw,
   Send,
-  Plus,
   ThumbsUp,
   ThumbsDown,
   MessageSquare,
@@ -47,16 +47,6 @@ const reviews = [
   "Prices are a bit high but quality is worth it. Staff is very friendly.",
 ];
 
-const sentimentResult = {
-  overall: 78,
-  positive: ["quality", "taste", "custom cakes", "friendly staff", "decoration"],
-  negative: ["delivery time", "pricing"],
-  suggestions: [
-    "Consider introducing a delivery tracking feature to address concerns about late deliveries.",
-    "Offer a loyalty program or bundle discounts to address pricing sensitivity.",
-  ],
-};
-
 export default function MarketingPage() {
   const [activeTab, setActiveTab] = useState<"content" | "campaigns" | "reviews">("content");
   const [contentType, setContentType] = useState("instagram");
@@ -66,7 +56,8 @@ export default function MarketingPage() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [reviewText, setReviewText] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
-  const [analyzed, setAnalyzed] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<NluAnalyzeResponse | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [emailTemplate, setEmailTemplate] = useState("promotional");
   const [emailList, setEmailList] = useState("");
 
@@ -84,12 +75,34 @@ export default function MarketingPage() {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!reviewText.trim() || analyzing) return;
+
+    setAnalysisError(null);
     setAnalyzing(true);
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/ibm/nlu/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reviewsText: reviewText }),
+      });
+
+      const data = (await response.json()) as NluAnalyzeResponse | { error?: string };
+      if (!response.ok) {
+        setAnalysisResult(null);
+        setAnalysisError(data.error ?? "Watson NLU could not analyze these reviews.");
+        return;
+      }
+
+      setAnalysisResult(data as NluAnalyzeResponse);
+    } catch {
+      setAnalysisResult(null);
+      setAnalysisError("Network error while contacting Watson NLU. Check your local server and IBM credentials.");
+    } finally {
       setAnalyzing(false);
-      setAnalyzed(true);
-    }, 2500);
+    }
   };
 
   return (
@@ -377,7 +390,11 @@ export default function MarketingPage() {
                   <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Paste Customer Reviews</label>
                   <textarea
                     value={reviewText}
-                    onChange={(e) => setReviewText(e.target.value)}
+                    onChange={(e) => {
+                      setReviewText(e.target.value);
+                      setAnalysisError(null);
+                      setAnalysisResult(null);
+                    }}
                     placeholder="Paste reviews from Google, Yelp, or any source — one per line..."
                     rows={6}
                     className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm placeholder:text-[#4b5e7a] outline-none resize-none transition-colors"
@@ -389,7 +406,11 @@ export default function MarketingPage() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.96 }}
-                    onClick={() => setReviewText(reviews.join("\n"))}
+                    onClick={() => {
+                      setReviewText(reviews.join("\n"));
+                      setAnalysisError(null);
+                      setAnalysisResult(null);
+                    }}
                     className="text-xs text-[#0062ff] hover:underline"
                   >
                     Load sample reviews
@@ -421,11 +442,17 @@ export default function MarketingPage() {
 
               {/* Results */}
               <div className="space-y-4">
-                {!analyzed ? (
+                {!analysisResult && !analysisError ? (
                   <div className="rounded-2xl border border-dashed border-[#2a3a55] bg-[#111827] p-12 text-center">
                     <Star size={32} className="text-[#4b5e7a] mx-auto mb-3" />
                     <p className="text-[#8b9cb6] font-medium">Sentiment results will appear here</p>
                     <p className="text-[#4b5e7a] text-sm mt-1">Paste reviews and click Analyze</p>
+                  </div>
+                ) : analysisError ? (
+                  <div className="rounded-2xl border border-[#ef4444]/20 bg-[#111827] p-8 text-center">
+                    <Star size={32} className="text-[#ef4444] mx-auto mb-3" />
+                    <p className="text-white font-medium">Analysis unavailable</p>
+                    <p className="text-[#8b9cb6] text-sm mt-1">{analysisError}</p>
                   </div>
                 ) : (
                   <>
@@ -443,25 +470,49 @@ export default function MarketingPage() {
                             <motion.path
                               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                               fill="none"
-                              stroke="#10b981"
+                              stroke={analysisResult.label === "negative" ? "#ef4444" : analysisResult.label === "neutral" ? "#f59e0b" : "#10b981"}
                               strokeWidth="3"
-                              strokeDasharray={`${sentimentResult.overall}, 100`}
+                              strokeDasharray={`${analysisResult.overallScore}, 100`}
                               strokeLinecap="round"
                               initial={{ strokeDasharray: "0, 100" }}
-                              animate={{ strokeDasharray: `${sentimentResult.overall}, 100` }}
+                              animate={{ strokeDasharray: `${analysisResult.overallScore}, 100` }}
                               transition={{ duration: 1.2, ease: "easeOut" }}
                             />
                           </svg>
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-2xl font-black text-[#10b981]">{sentimentResult.overall}</span>
+                            <span className={`text-2xl font-black ${
+                              analysisResult.label === "negative"
+                                ? "text-[#ef4444]"
+                                : analysisResult.label === "neutral"
+                                ? "text-[#f59e0b]"
+                                : "text-[#10b981]"
+                            }`}>
+                              {analysisResult.overallScore}
+                            </span>
                           </div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-white font-medium mb-1">Positive Sentiment</p>
-                          <p className="text-xs text-[#4b5e7a]">Based on {reviews.length} reviews analyzed by Watson NLU</p>
+                          <p className="text-sm text-white font-medium mb-1 capitalize">{analysisResult.label} sentiment</p>
+                          <p className="text-xs text-[#4b5e7a]">Based on {analysisResult.reviewCount} reviews analyzed by Watson NLU</p>
                           <div className="flex gap-3 mt-3">
-                            <span className="flex items-center gap-1 text-xs text-[#10b981]"><ThumbsUp size={12} /> Mostly Positive</span>
-                            <span className="flex items-center gap-1 text-xs text-[#f59e0b]"><MessageSquare size={12} /> 2 Areas to Improve</span>
+                            <span className={`flex items-center gap-1 text-xs ${
+                              analysisResult.label === "negative"
+                                ? "text-[#ef4444]"
+                                : analysisResult.label === "neutral"
+                                ? "text-[#f59e0b]"
+                                : "text-[#10b981]"
+                            }`}>
+                              <ThumbsUp size={12} />
+                              {analysisResult.label === "negative"
+                                ? "Needs Attention"
+                                : analysisResult.label === "neutral"
+                                ? "Mixed Feedback"
+                                : "Mostly Positive"}
+                            </span>
+                            <span className="flex items-center gap-1 text-xs text-[#f59e0b]">
+                              <MessageSquare size={12} />
+                              {analysisResult.negativeThemes.length > 0 ? `${analysisResult.negativeThemes.length} Areas to Improve` : "No major issues detected"}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -477,19 +528,27 @@ export default function MarketingPage() {
                       <h4 className="font-semibold text-white mb-4">Key Themes</h4>
                       <div className="mb-3">
                         <p className="text-xs text-[#10b981] font-semibold mb-2">✓ Positive mentions</p>
-                        <div className="flex flex-wrap gap-2">
-                          {sentimentResult.positive.map((k) => (
-                            <span key={k} className="px-2.5 py-1 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs font-medium">{k}</span>
-                          ))}
-                        </div>
+                        {analysisResult.positiveThemes.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResult.positiveThemes.map((k) => (
+                              <span key={k} className="px-2.5 py-1 rounded-full bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-xs font-medium">{k}</span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-[#4b5e7a]">Watson NLU did not find strong positive themes in this batch.</p>
+                        )}
                       </div>
                       <div>
                         <p className="text-xs text-[#ef4444] font-semibold mb-2">⚠ Areas of concern</p>
-                        <div className="flex flex-wrap gap-2">
-                          {sentimentResult.negative.map((k) => (
-                            <span key={k} className="px-2.5 py-1 rounded-full bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-xs font-medium">{k}</span>
-                          ))}
-                        </div>
+                        {analysisResult.negativeThemes.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResult.negativeThemes.map((k) => (
+                              <span key={k} className="px-2.5 py-1 rounded-full bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-xs font-medium">{k}</span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-[#4b5e7a]">No strong recurring complaints were detected in these reviews.</p>
+                        )}
                       </div>
                     </motion.div>
 
@@ -505,7 +564,7 @@ export default function MarketingPage() {
                         AI Recommendations
                       </h4>
                       <div className="space-y-3">
-                        {sentimentResult.suggestions.map((s, i) => (
+                        {analysisResult.suggestions.map((s, i) => (
                           <div key={i} className="flex items-start gap-2">
                             <span className="text-[#0062ff] text-sm mt-0.5">{i + 1}.</span>
                             <p className="text-sm text-[#8b9cb6]">{s}</p>

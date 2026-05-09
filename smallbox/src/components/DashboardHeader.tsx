@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { Bell, Search, ChevronDown } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 
 interface DashboardHeaderProps {
   title: string;
