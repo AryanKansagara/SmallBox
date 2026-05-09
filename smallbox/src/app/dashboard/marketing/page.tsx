@@ -164,11 +164,11 @@ export default function MarketingPage() {
                 </div>
 
                 <motion.button
-                  whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(0,98,255,0.35)" }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(123,47,255,0.35)" }}
                   whileTap={{ scale: 0.97 }}
                   onClick={handleGenerate}
                   disabled={generating}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary/90 disabled:opacity-70 transition-all shadow-[0_0_20px_rgba(0,98,255,0.3)]"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary/90 disabled:opacity-70 transition-all shadow-[0_0_20px_rgba(123,47,255,0.3)]"
                 >
                   {generating ? (
                     <>
@@ -201,7 +201,7 @@ export default function MarketingPage() {
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      whileHover={{ borderColor: "rgba(0,98,255,0.25)" }}
+                      whileHover={{ borderColor: "rgba(123,47,255,0.25)" }}
                       className="rounded-2xl border border-black/8 dark:border-white/8 glass-card p-5 transition-all"
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
@@ -255,9 +255,9 @@ export default function MarketingPage() {
                 </div>
 
                 <motion.button
-                  whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(0,98,255,0.35)" }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(123,47,255,0.35)" }}
                   whileTap={{ scale: 0.97 }}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm shadow-[0_0_20px_rgba(0,98,255,0.3)]"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm shadow-[0_0_20px_rgba(123,47,255,0.3)]"
                 >
                   <Sparkles size={16} />Generate Email Content
                 </motion.button>
@@ -297,7 +297,7 @@ export default function MarketingPage() {
                     <span>0 recipients</span>
                   </div>
                   <motion.button
-                    whileHover={{ scale: 1.04, boxShadow: "0 0 20px rgba(0,98,255,0.35)" }}
+                    whileHover={{ scale: 1.04, boxShadow: "0 0 20px rgba(123,47,255,0.35)" }}
                     whileTap={{ scale: 0.96 }}
                     className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold"
                   >
@@ -341,11 +341,11 @@ export default function MarketingPage() {
                 </div>
 
                 <motion.button
-                  whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(0,98,255,0.35)" }}
+                  whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(123,47,255,0.35)" }}
                   whileTap={{ scale: 0.97 }}
                   onClick={handleAnalyze}
                   disabled={analyzing || !reviewText}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm disabled:opacity-60 transition-all shadow-[0_0_20px_rgba(0,98,255,0.3)]"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm disabled:opacity-60 transition-all shadow-[0_0_20px_rgba(123,47,255,0.3)]"
                 >
                   {analyzing ? (
                     <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><Sparkles size={16} /></motion.div>Analyzing with Watson NLU...</>

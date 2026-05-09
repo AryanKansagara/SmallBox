@@ -10,7 +10,6 @@ import {
   Megaphone,
   Settings,
   ChevronRight,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,10 +28,7 @@ export function Sidebar() {
     <aside className="w-60 shrink-0 h-screen sticky top-0 flex flex-col border-r border-black/8 dark:border-white/8 glass-strong dark:glass bg-white/82 dark:bg-transparent">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-black/8 dark:border-white/8">
-        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(0,98,255,0.5)]">
-          <Zap size={16} className="text-white" fill="white" />
-        </div>
-        <span className="text-[#1d1d1f] dark:text-white font-bold text-lg tracking-tight">SmallBox</span>
+        <span className="text-white font-bold text-xl tracking-tight">SmallBox</span>
       </div>
 
       {/* Navigation */}

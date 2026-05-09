@@ -17,13 +17,13 @@ function AnimatedSphere() {
     <Float speed={1.6} rotationIntensity={0.3} floatIntensity={0.7}>
       <Sphere ref={meshRef} args={[1.5, 80, 80]}>
         <MeshDistortMaterial
-          color="#0062ff"
-          emissive="#001a6e"
-          emissiveIntensity={0.5}
-          metalness={0.7}
-          roughness={0.15}
-          distort={0.38}
-          speed={2.5}
+          color="#7b2fff"
+          emissive="#3a006e"
+          emissiveIntensity={0.6}
+          metalness={0.8}
+          roughness={0.1}
+          distort={0.42}
+          speed={2.8}
           transparent
           opacity={0.92}
         />
@@ -41,8 +41,8 @@ export default function HeroOrb() {
       dpr={[1, 2]}
     >
       <ambientLight intensity={0.5} />
-      <pointLight position={[6, 6, 6]} intensity={2.5} color="#4da3ff" />
-      <pointLight position={[-6, -4, -4]} intensity={1.2} color="#38bdf8" />
+      <pointLight position={[6, 6, 6]} intensity={2.5} color="#bf9fff" />
+      <pointLight position={[-6, -4, -4]} intensity={1.2} color="#ff4dab" />
       <directionalLight position={[2, 4, 2]} intensity={1.5} color="#ffffff" />
       <AnimatedSphere />
     </Canvas>

@@ -316,14 +316,11 @@ export default function OnboardingPage() {
   const showDashboard = step === "handoff" && !botTyping;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#080810] grid-bg flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-black/8 dark:border-white/8 bg-white/60 dark:bg-black/30 backdrop-blur-xl shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(0,98,255,0.4)]">
-            <span className="text-white font-bold text-xs">S</span>
-          </div>
-          <span className="font-semibold text-[#1d1d1f] dark:text-white text-sm">SmallBox</span>
+          <span className="font-bold text-white text-base">SmallBox</span>
         </div>
         <ThemeToggle />
       </nav>
@@ -476,7 +473,7 @@ export default function OnboardingPage() {
                         whileTap={{ scale: 0.98 }}
                         onClick={handleMultiConfirm}
                         disabled={selected.length === 0}
-                        className="w-full py-2.5 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-35 flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,98,255,0.35)]"
+                        className="w-full py-2.5 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-35 flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(123,47,255,0.35)]"
                       >
                         Confirm my choices <ArrowRight size={14} />
                       </motion.button>
@@ -506,7 +503,7 @@ export default function OnboardingPage() {
                       whileTap={{ scale: 0.95 }}
                       onClick={handleTextSubmit}
                       disabled={!input.trim()}
-                      className="w-10 h-10 rounded-xl bg-primary disabled:opacity-35 flex items-center justify-center shrink-0 shadow-[0_4px_16px_rgba(0,98,255,0.35)]"
+                      className="w-10 h-10 rounded-xl bg-primary disabled:opacity-35 flex items-center justify-center shrink-0 shadow-[0_4px_16px_rgba(123,47,255,0.35)]"
                     >
                       <Send size={15} className="text-white" />
                     </motion.button>
@@ -521,9 +518,9 @@ export default function OnboardingPage() {
                   >
                     <Link href="/dashboard">
                       <motion.button
-                        whileHover={{ scale: 1.02, boxShadow: "0 8px_32px rgba(0,98,255,0.5)" }}
+                        whileHover={{ scale: 1.02, boxShadow: "0 8px_32px rgba(123,47,255,0.5)" }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full py-3 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(0,98,255,0.4)]"
+                        className="w-full py-3 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(123,47,255,0.4)]"
                       >
                         Open My Dashboard <ArrowRight size={16} />
                       </motion.button>

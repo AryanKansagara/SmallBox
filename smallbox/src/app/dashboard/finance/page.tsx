@@ -73,7 +73,7 @@ const SEED_TRANSACTIONS: Transaction[] = [
 ];
 
 const SEED_BUDGETS: Budget[] = [
-  { category: "Supplies", total: 1000, color: "#0062ff" },
+  { category: "Supplies", total: 1000, color: "#7b2fff" },
   { category: "Marketing", total: 500, color: "#10b981" },
   { category: "Utilities", total: 350, color: "#f59e0b" },
   { category: "Rent", total: 1200, color: "#8b5cf6" },
@@ -136,7 +136,7 @@ export default function FinancePage() {
   }, [transactions]);
 
   const expenseByCategory = useMemo(() => {
-    const COLORS: Record<string, string> = { Supplies: "#0062ff", Marketing: "#10b981", Utilities: "#f59e0b", Rent: "#8b5cf6", Other: "#38bdf8" };
+    const COLORS: Record<string, string> = { Supplies: "#7b2fff", Marketing: "#10b981", Utilities: "#f59e0b", Rent: "#8b5cf6", Other: "#38bdf8" };
     const map: Record<string, number> = {};
     thisMonthTxns.filter((t) => t.type === "expense").forEach((t) => { map[t.category] = (map[t.category] ?? 0) + t.amount; });
     return Object.entries(map).map(([name, value]) => ({ name, value: Math.round(value), color: COLORS[name] ?? "#38bdf8" }));
@@ -169,7 +169,7 @@ export default function FinancePage() {
   const saveBudget = () => {
     const total = parseFloat(budgetForm.total);
     if (isNaN(total) || total <= 0) return;
-    const COLORS: Record<string, string> = { Supplies: "#0062ff", Marketing: "#10b981", Utilities: "#f59e0b", Rent: "#8b5cf6", Other: "#38bdf8" };
+    const COLORS: Record<string, string> = { Supplies: "#7b2fff", Marketing: "#10b981", Utilities: "#f59e0b", Rent: "#8b5cf6", Other: "#38bdf8" };
     setBudgets((prev) => {
       const existing = prev.find((b) => b.category === budgetForm.category);
       if (existing) return prev.map((b) => b.category === budgetForm.category ? { ...b, total } : b);
@@ -255,11 +255,11 @@ export default function FinancePage() {
                         <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-                    <XAxis dataKey="month" tick={{ fill: "rgba(0,0,0,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: "rgba(0,0,0,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.15)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={TOOLTIP_STYLE} />
-                    <Legend wrapperStyle={{ color: "rgba(0,0,0,0.5)", fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
                     <Area type="monotone" dataKey="income" stroke="#10b981" strokeWidth={2} fill="url(#incomeGrad)" name="Income" />
                     <Area type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={2} fill="url(#expenseGrad)" name="Expenses" />
                   </AreaChart>
@@ -322,7 +322,7 @@ export default function FinancePage() {
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => setShowAddModal(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold shadow-[0_0_16px_rgba(0,98,255,0.3)] hover:bg-primary/90 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold shadow-[0_0_16px_rgba(123,47,255,0.3)] hover:bg-primary/90 transition-all"
                   >
                     <Plus size={12} /> Add Entry
                   </motion.button>
@@ -384,7 +384,7 @@ export default function FinancePage() {
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => { setEditingBudget(null); setBudgetForm({ category: "Supplies", total: "" }); setShowBudgetModal(true); }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold shadow-[0_0_16px_rgba(0,98,255,0.3)]"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold shadow-[0_0_16px_rgba(123,47,255,0.3)]"
                   >
                     <Plus size={12} /> Add Budget
                   </motion.button>
@@ -443,9 +443,9 @@ export default function FinancePage() {
                 ) : (
                   <ResponsiveContainer width="100%" height={260}>
                     <BarChart data={expenseByCategory} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fill: "rgba(0,0,0,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: "rgba(0,0,0,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.15)" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`$${Number(v).toFixed(2)}`, "Spent"]} />
                       <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Amount">
                         {expenseByCategory.map((entry, index) => <Cell key={index} fill={entry.color} />)}
@@ -511,7 +511,7 @@ export default function FinancePage() {
                 </div>
                 <div className="flex gap-3 mt-6">
                   <button onClick={() => setShowAddModal(false)} className="flex-1 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-black/50 dark:text-white/50 text-sm hover:text-black dark:hover:text-white transition-colors">Cancel</button>
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={addTransaction} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(0,98,255,0.35)]">
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={addTransaction} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(123,47,255,0.35)]">
                     <Check size={14} /> Add Entry
                   </motion.button>
                 </div>
@@ -550,7 +550,7 @@ export default function FinancePage() {
                 </div>
                 <div className="flex gap-3 mt-6">
                   <button onClick={() => setShowBudgetModal(false)} className="flex-1 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-black/50 dark:text-white/50 text-sm hover:text-black dark:hover:text-white transition-colors">Cancel</button>
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={saveBudget} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(0,98,255,0.35)]">
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={saveBudget} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(123,47,255,0.35)]">
                     <Check size={14} /> Save Budget
                   </motion.button>
                 </div>
