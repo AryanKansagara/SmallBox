@@ -117,7 +117,7 @@ function parseInsights(text: string): Insight[] {
             it.type === "warning" || it.type === "positive" || it.type === "tip"
               ? it.type
               : "tip",
-        }))
+        } as Insight))
         .filter((it) => it.title.length > 0 && it.body.length > 0)
         .slice(0, 3);
       if (validInsights.length > 0) return validInsights;

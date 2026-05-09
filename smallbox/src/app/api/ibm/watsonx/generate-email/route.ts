@@ -5,6 +5,7 @@ import {
   type EmailCampaignTone,
   type EmailCampaignTemplate,
 } from "@/lib/email-campaign";
+import { generateEmailWithWatsonx } from "@/lib/watsonx";
 
 interface GenerateEmailRequest extends EmailCampaignDraftInput {
   recipientCount?: number;
@@ -37,17 +38,39 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Choose a valid email tone." }, { status: 400 });
   }
 
-  const draft = createEmailCampaignDraft({
-    businessName: getString(payload.businessName, "Your business"),
-    audience: getString(payload.audience, "your customers"),
+  const businessName = getString(payload.businessName, "Your business");
+  const audience = getString(payload.audience, "your customers");
+  const offer = getString(payload.offer, "a limited-time offer");
+
+  // Try watsonx.ai first; fallback to local templates if it fails or isn't configured
+  const result = await generateEmailWithWatsonx({
+    businessName,
+    audience,
     template,
     tone,
-    offer: getString(payload.offer, "a limited-time offer"),
+    offer,
   });
+
+  // If watsonx failed, use local template as fallback
+  let draft = result.draft;
+  const source = result.source;
+
+  if (result.error && source === "local") {
+    // Watsonx failed; replace placeholder draft with proper local template
+    draft = createEmailCampaignDraft({
+      businessName,
+      audience,
+      template,
+      tone,
+      offer,
+    });
+  }
 
   return NextResponse.json({
     draft,
+    source,
     recipientCount: Number(payload.recipientCount ?? 0),
     generatedAt: new Date().toISOString(),
+    watsonxError: result.error || undefined,
   });
 }

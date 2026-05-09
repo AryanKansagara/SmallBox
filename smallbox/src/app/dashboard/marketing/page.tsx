@@ -66,6 +66,8 @@ export default function MarketingPage() {
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
   const [captions, setCaptions] = useState<string[]>([]);
+  const [contentStatus, setContentStatus] = useState<string | null>(null);
+  const [contentError, setContentError] = useState<string | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [reviewText, setReviewText] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
@@ -86,12 +88,61 @@ export default function MarketingPage() {
   const parsedRecipients = parseEmailRecipients(emailRecipients);
   const recipientCount = parsedRecipients.valid.length;
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (generating) return;
+
+    const trimmedPrompt = prompt.trim();
+    if (!trimmedPrompt) {
+      setCaptions([]);
+      setContentError("Add a topic or promotion idea before generating content.");
+      setContentStatus(null);
+      return;
+    }
+
     setGenerating(true);
-    setTimeout(() => {
-      setGenerating(false);
+    setContentError(null);
+    setContentStatus(null);
+
+    try {
+      const response = await fetch("/api/ibm/watsonx/generate-content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contentType,
+          prompt: trimmedPrompt,
+        }),
+      });
+
+      const data = (await response.json()) as {
+        variations?: string[];
+        source?: "watsonx" | "local";
+        watsonxError?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !Array.isArray(data.variations) || data.variations.length === 0) {
+        setCaptions(generatedCaptions);
+        setContentError(data.error ?? data.watsonxError ?? "Unable to generate content right now.");
+        setContentStatus("Using fallback examples");
+        return;
+      }
+
+      setCaptions(data.variations);
+      if (data.source === "watsonx") {
+        setContentStatus("Generated with watsonx.ai");
+      } else {
+        setContentStatus("Using local fallback examples");
+        setContentError(data.watsonxError ?? "Watsonx returned a fallback response.");
+      }
+    } catch {
       setCaptions(generatedCaptions);
-    }, 2000);
+      setContentError("Network error while generating content.");
+      setContentStatus("Using fallback examples");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handleCopy = (i: number, text: string) => {
@@ -340,6 +391,9 @@ export default function MarketingPage() {
 
               {/* Output panel */}
               <div className="xl:col-span-3 space-y-4">
+                {contentError && <p className="text-sm text-[#ef4444]">{contentError}</p>}
+                {contentStatus && <p className="text-sm text-[#10b981]">{contentStatus}</p>}
+
                 {captions.length === 0 && !generating ? (
                   <div className="rounded-2xl border border-dashed border-[#2a3a55] bg-[#111827] p-12 text-center">
                     <Sparkles size={32} className="text-[#4b5e7a] mx-auto mb-3" />
@@ -386,7 +440,7 @@ export default function MarketingPage() {
                           </motion.button>
                         </div>
                       </div>
-                      <p className="text-sm text-white leading-relaxed">{caption}</p>
+                      <p className="text-sm text-white leading-relaxed whitespace-pre-line">{caption}</p>
                     </motion.div>
                   ))
                 )}
