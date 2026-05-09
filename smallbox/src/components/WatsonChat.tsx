@@ -87,11 +87,14 @@ function getResponse(input: string): string {
 }
 
 function formatText(text: string) {
-  // Bold **text**
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
+      return (
+        <strong key={i} className="text-[#1d1d1f] dark:text-white font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
     }
     return <span key={i}>{part}</span>;
   });
@@ -136,13 +139,12 @@ export function WatsonChat() {
 
     const delay = 800 + Math.random() * 700;
     setTimeout(() => {
-      const response = getResponse(text);
       setMessages((prev) => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          text: response,
+          text: getResponse(text),
           timestamp: new Date(),
         },
       ]);
@@ -173,7 +175,7 @@ export function WatsonChat() {
             whileHover={{ scale: 1.1, boxShadow: "0 0 32px rgba(0,98,255,0.6)" }}
             whileTap={{ scale: 0.92 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#0062ff] flex items-center justify-center shadow-[0_4px_24px_rgba(0,98,255,0.5)] glow-animation"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-[0_4px_24px_rgba(0,98,255,0.5)] glow-animation"
           >
             <MessageSquare size={22} className="text-white" />
           </motion.button>
@@ -187,36 +189,36 @@ export function WatsonChat() {
             initial={{ opacity: 0, y: 32, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 32, scale: 0.95 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] flex flex-col rounded-2xl border border-[#2a3a55] bg-[#111827] shadow-[0_24px_80px_rgba(0,0,0,0.6)] overflow-hidden"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="fixed bottom-6 right-6 z-50 w-[380px] flex flex-col rounded-2xl border border-black/10 dark:border-white/12 shadow-[0_24px_80px_rgba(0,0,0,0.3)] dark:shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden bg-white/95 dark:bg-[#12141f]/95 backdrop-blur-xl"
             style={{ maxHeight: minimized ? "auto" : "520px" }}
           >
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2a3a55] bg-[#0a0e1a] shrink-0">
-              <div className="w-8 h-8 rounded-xl bg-[#0062ff] flex items-center justify-center shadow-[0_0_12px_rgba(0,98,255,0.5)]">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-black/8 dark:border-white/8 shrink-0 bg-black/5 dark:bg-white/5">
+              <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_12px_rgba(0,98,255,0.5)]">
                 <Sparkles size={15} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white leading-tight">SmallBox AI</p>
-                <p className="text-[10px] text-[#4b5e7a] leading-tight">Powered by watsonx.ai</p>
+                <p className="text-sm font-semibold text-[#1d1d1f] dark:text-white leading-tight">SmallBox AI</p>
+                <p className="text-[10px] text-black/40 dark:text-white/40 leading-tight">Powered by watsonx.ai</p>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   onClick={reset}
-                  className="w-7 h-7 rounded-lg hover:bg-[#1a2235] flex items-center justify-center text-[#4b5e7a] hover:text-[#8b9cb6] transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/8 flex items-center justify-center text-black/35 dark:text-white/35 hover:text-black/60 dark:hover:text-white/60 transition-colors"
                   title="Clear chat"
                 >
                   <RotateCcw size={13} />
                 </button>
                 <button
                   onClick={() => setMinimized((m) => !m)}
-                  className="w-7 h-7 rounded-lg hover:bg-[#1a2235] flex items-center justify-center text-[#4b5e7a] hover:text-[#8b9cb6] transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/8 flex items-center justify-center text-black/35 dark:text-white/35 hover:text-black/60 dark:hover:text-white/60 transition-colors"
                 >
                   <Minus size={13} />
                 </button>
                 <button
                   onClick={() => setOpen(false)}
-                  className="w-7 h-7 rounded-lg hover:bg-[#1a2235] flex items-center justify-center text-[#4b5e7a] hover:text-[#8b9cb6] transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/8 flex items-center justify-center text-black/35 dark:text-white/35 hover:text-black/60 dark:hover:text-white/60 transition-colors"
                 >
                   <X size={13} />
                 </button>
@@ -233,7 +235,10 @@ export function WatsonChat() {
                   className="flex flex-col overflow-hidden"
                   style={{ flex: 1, minHeight: 0 }}
                 >
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ maxHeight: "360px" }}>
+                  <div
+                    className="flex-1 overflow-y-auto p-4 space-y-3"
+                    style={{ maxHeight: "360px" }}
+                  >
                     {messages.map((msg) => (
                       <motion.div
                         key={msg.id}
@@ -243,15 +248,15 @@ export function WatsonChat() {
                         className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-2`}
                       >
                         {msg.role === "assistant" && (
-                          <div className="w-6 h-6 rounded-lg bg-[#0062ff]/20 border border-[#0062ff]/30 flex items-center justify-center shrink-0 mt-0.5">
-                            <Sparkles size={11} className="text-[#0062ff]" />
+                          <div className="w-6 h-6 rounded-lg bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0 mt-0.5">
+                            <Sparkles size={11} className="text-primary" />
                           </div>
                         )}
                         <div
                           className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line ${
                             msg.role === "user"
-                              ? "bg-[#0062ff] text-white rounded-tr-sm"
-                              : "bg-[#1a2235] text-[#8b9cb6] rounded-tl-sm border border-[#2a3a55]"
+                              ? "bg-primary text-white rounded-tr-sm"
+                              : "bg-black/6 dark:bg-white/10 text-[#1d1d1f] dark:text-white rounded-tl-sm border border-black/8 dark:border-white/10"
                           }`}
                         >
                           {msg.role === "assistant" ? formatText(msg.text) : msg.text}
@@ -266,17 +271,17 @@ export function WatsonChat() {
                         animate={{ opacity: 1, y: 0 }}
                         className="flex items-start gap-2"
                       >
-                        <div className="w-6 h-6 rounded-lg bg-[#0062ff]/20 border border-[#0062ff]/30 flex items-center justify-center shrink-0">
-                          <Sparkles size={11} className="text-[#0062ff]" />
+                        <div className="w-6 h-6 rounded-lg bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
+                          <Sparkles size={11} className="text-primary" />
                         </div>
-                        <div className="bg-[#1a2235] border border-[#2a3a55] px-4 py-3 rounded-2xl rounded-tl-sm">
+                        <div className="bg-black/5 dark:bg-white/8 border border-black/6 dark:border-white/8 px-4 py-3 rounded-2xl rounded-tl-sm">
                           <div className="flex gap-1 items-center h-4">
                             {[0, 1, 2].map((i) => (
                               <motion.span
                                 key={i}
                                 animate={{ y: [0, -4, 0] }}
                                 transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
-                                className="w-1.5 h-1.5 rounded-full bg-[#4b5e7a] block"
+                                className="w-1.5 h-1.5 rounded-full bg-black/30 dark:bg-white/30 block"
                               />
                             ))}
                           </div>
@@ -289,36 +294,41 @@ export function WatsonChat() {
                   {/* Suggested prompts */}
                   {messages.length === 1 && (
                     <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-                      {["How's my revenue?", "Budget tips", "Marketing ideas", "What can you do?"].map((prompt) => (
-                        <motion.button
-                          key={prompt}
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                          onClick={() => { setInput(prompt); inputRef.current?.focus(); }}
-                          className="text-[11px] px-2.5 py-1 rounded-full border border-[#2a3a55] bg-[#1a2235] text-[#8b9cb6] hover:text-white hover:border-[#0062ff]/40 transition-all"
-                        >
-                          {prompt}
-                        </motion.button>
-                      ))}
+                      {["How's my revenue?", "Budget tips", "Marketing ideas", "What can you do?"].map(
+                        (prompt) => (
+                          <motion.button
+                            key={prompt}
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => {
+                              setInput(prompt);
+                              inputRef.current?.focus();
+                            }}
+                            className="text-[11px] px-2.5 py-1 rounded-full border border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/5 text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white hover:border-primary/30 transition-all"
+                          >
+                            {prompt}
+                          </motion.button>
+                        )
+                      )}
                     </div>
                   )}
 
                   {/* Input */}
-                  <div className="p-3 border-t border-[#2a3a55] flex items-center gap-2 shrink-0">
+                  <div className="p-3 border-t border-black/8 dark:border-white/8 flex items-center gap-2 shrink-0">
                     <input
                       ref={inputRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && send()}
                       placeholder="Ask about your business..."
-                      className="flex-1 bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-3 py-2 text-sm text-white placeholder:text-[#4b5e7a] outline-none transition-colors"
+                      className="flex-1 bg-black/5 dark:bg-white/6 border border-black/8 dark:border-white/8 focus:border-primary/40 rounded-xl px-3 py-2 text-sm text-[#1d1d1f] dark:text-white placeholder:text-black/35 dark:placeholder:text-white/35 outline-none transition-colors"
                     />
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={send}
                       disabled={!input.trim() || typing}
-                      className="w-9 h-9 rounded-xl bg-[#0062ff] disabled:opacity-40 flex items-center justify-center hover:bg-[#0050d0] transition-colors shrink-0"
+                      className="w-9 h-9 rounded-xl bg-primary disabled:opacity-40 flex items-center justify-center hover:bg-primary/90 transition-colors shrink-0"
                     >
                       <Send size={15} className="text-white" />
                     </motion.button>
