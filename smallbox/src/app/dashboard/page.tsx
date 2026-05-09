@@ -1,0 +1,327 @@
+"use client";
+
+import { motion, type Variants } from "framer-motion";
+import { DashboardHeader } from "@/components/DashboardHeader";
+import {
+  TrendingUp,
+  TrendingDown,
+  Globe,
+  DollarSign,
+  Megaphone,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Zap,
+  Activity,
+} from "lucide-react";
+import Link from "next/link";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+const revenueData = [
+  { month: "Nov", revenue: 3200, expenses: 1800 },
+  { month: "Dec", revenue: 3800, expenses: 2100 },
+  { month: "Jan", revenue: 3100, expenses: 1900 },
+  { month: "Feb", revenue: 4200, expenses: 2200 },
+  { month: "Mar", revenue: 3900, expenses: 2000 },
+  { month: "Apr", revenue: 4800, expenses: 2400 },
+  { month: "May", revenue: 4280, expenses: 2150 },
+];
+
+const stats = [
+  {
+    label: "Monthly Revenue",
+    value: "$4,280",
+    change: "+18%",
+    up: true,
+    icon: DollarSign,
+    color: "text-[#10b981]",
+    bg: "bg-[#10b981]/10",
+    border: "border-[#10b981]/20",
+  },
+  {
+    label: "Website Views",
+    value: "1,847",
+    change: "+12%",
+    up: true,
+    icon: Globe,
+    color: "text-[#0062ff]",
+    bg: "bg-[#0062ff]/10",
+    border: "border-[#0062ff]/20",
+  },
+  {
+    label: "Marketing Campaigns",
+    value: "12",
+    change: "+3 this month",
+    up: true,
+    icon: Megaphone,
+    color: "text-violet-400",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/20",
+  },
+  {
+    label: "Budget Remaining",
+    value: "$1,850",
+    change: "-$430 spent",
+    up: false,
+    icon: Activity,
+    color: "text-[#f59e0b]",
+    bg: "bg-[#f59e0b]/10",
+    border: "border-[#f59e0b]/20",
+  },
+];
+
+const quickActions = [
+  {
+    label: "Build a Website",
+    desc: "AI-generated in minutes",
+    icon: Globe,
+    href: "/dashboard/website",
+    color: "bg-[#0062ff]",
+    glow: "hover:shadow-[0_0_24px_rgba(0,98,255,0.4)]",
+  },
+  {
+    label: "Add Transaction",
+    desc: "Track income or expense",
+    icon: DollarSign,
+    href: "/dashboard/finance",
+    color: "bg-[#10b981]",
+    glow: "hover:shadow-[0_0_24px_rgba(16,185,129,0.4)]",
+  },
+  {
+    label: "Generate Content",
+    desc: "AI marketing copy",
+    icon: Megaphone,
+    href: "/dashboard/marketing",
+    color: "bg-violet-600",
+    glow: "hover:shadow-[0_0_24px_rgba(124,58,237,0.4)]",
+  },
+];
+
+const activity = [
+  { icon: Globe, text: "Website published", sub: "mybakery.smallbox.app", time: "2h ago", color: "text-[#0062ff]", bg: "bg-[#0062ff]/10" },
+  { icon: DollarSign, text: "Expense added", sub: "Supplies — $234.50", time: "5h ago", color: "text-[#10b981]", bg: "bg-[#10b981]/10" },
+  { icon: Megaphone, text: "Campaign sent", sub: "May Newsletter — 142 recipients", time: "1d ago", color: "text-violet-400", bg: "bg-violet-500/10" },
+  { icon: Zap, text: "AI generated website copy", sub: "watsonx.ai · 3 sections", time: "2d ago", color: "text-[#f59e0b]", bg: "bg-[#f59e0b]/10" },
+  { icon: CheckCircle2, text: "Budget review complete", sub: "April — 78% used", time: "3d ago", color: "text-[#38bdf8]", bg: "bg-[#38bdf8]/10" },
+];
+
+const budgets = [
+  { category: "Supplies", used: 780, total: 1000, pct: 78 },
+  { category: "Marketing", used: 320, total: 500, pct: 64 },
+  { category: "Utilities", used: 210, total: 350, pct: 60 },
+  { category: "Rent", used: 1200, total: 1200, pct: 100 },
+];
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, delay: i * 0.07, ease: "easeOut" },
+  }),
+};
+
+export default function DashboardPage() {
+  return (
+    <div className="flex flex-col flex-1">
+      <DashboardHeader title="Overview" subtitle="Welcome back — here's your business at a glance" />
+
+      <main className="flex-1 p-6 space-y-6">
+        {/* Stats Grid */}
+        <motion.div
+          variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+        >
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              variants={fadeUp}
+              custom={i}
+              whileHover={{ y: -3, boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}
+              className={`rounded-2xl border ${s.border} bg-[#111827] p-5`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-10 h-10 rounded-xl ${s.bg} border ${s.border} flex items-center justify-center`}>
+                  <s.icon size={18} className={s.color} />
+                </div>
+                <span className={`text-xs font-medium flex items-center gap-1 ${s.up ? "text-[#10b981]" : "text-[#f59e0b]"}`}>
+                  {s.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                  {s.change}
+                </span>
+              </div>
+              <p className="text-2xl font-bold text-white mb-0.5">{s.value}</p>
+              <p className="text-xs text-[#4b5e7a]">{s.label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Main content row */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Revenue Chart */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="xl:col-span-2 rounded-2xl border border-[#2a3a55] bg-[#111827] p-6"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-semibold text-white">Revenue vs Expenses</h3>
+                <p className="text-xs text-[#4b5e7a] mt-0.5">Last 7 months</p>
+              </div>
+              <span className="text-xs bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20 px-2.5 py-1 rounded-full font-medium">
+                ↑ 18% overall
+              </span>
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={revenueData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0062ff" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#0062ff" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#2a3a55" />
+                <XAxis dataKey="month" tick={{ fill: "#4b5e7a", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "#4b5e7a", fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ background: "#1a2235", border: "1px solid #2a3a55", borderRadius: "12px", color: "#fff" }}
+                  labelStyle={{ color: "#8b9cb6" }}
+                />
+                <Area type="monotone" dataKey="revenue" stroke="#0062ff" strokeWidth={2} fill="url(#colorRevenue)" name="Revenue" />
+                <Area type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={2} fill="url(#colorExpenses)" name="Expenses" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          {/* Activity Feed */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
+            className="rounded-2xl border border-[#2a3a55] bg-[#111827] p-6"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-semibold text-white">Recent Activity</h3>
+              <Clock size={14} className="text-[#4b5e7a]" />
+            </div>
+            <div className="space-y-4">
+              {activity.map((a, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + i * 0.06 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className={`w-8 h-8 rounded-lg ${a.bg} flex items-center justify-center shrink-0 mt-0.5`}>
+                    <a.icon size={14} className={a.color} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{a.text}</p>
+                    <p className="text-xs text-[#4b5e7a] truncate">{a.sub}</p>
+                  </div>
+                  <span className="text-[10px] text-[#4b5e7a] shrink-0">{a.time}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Bottom row */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="rounded-2xl border border-[#2a3a55] bg-[#111827] p-6"
+          >
+            <h3 className="font-semibold text-white mb-4">Quick Actions</h3>
+            <div className="space-y-3">
+              {quickActions.map((qa) => (
+                <Link key={qa.label} href={qa.href}>
+                  <motion.div
+                    whileHover={{ x: 4 }}
+                    className={`flex items-center gap-3 p-3 rounded-xl bg-[#1a2235] border border-[#2a3a55] hover:border-[#0062ff]/30 transition-all cursor-pointer group ${qa.glow} transition-shadow`}
+                  >
+                    <div className={`w-9 h-9 rounded-lg ${qa.color} flex items-center justify-center`}>
+                      <qa.icon size={16} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-white">{qa.label}</p>
+                      <p className="text-xs text-[#4b5e7a]">{qa.desc}</p>
+                    </div>
+                    <ArrowRight size={14} className="text-[#4b5e7a] group-hover:text-[#0062ff] transition-colors" />
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Budget Overview */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.5 }}
+            className="xl:col-span-2 rounded-2xl border border-[#2a3a55] bg-[#111827] p-6"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-semibold text-white">Budget Overview</h3>
+              <Link href="/dashboard/finance" className="text-xs text-[#0062ff] hover:underline flex items-center gap-1">
+                View All <ArrowRight size={12} />
+              </Link>
+            </div>
+            <div className="space-y-4">
+              {budgets.map((b, i) => (
+                <motion.div
+                  key={b.category}
+                  initial={{ opacity: 0, x: 8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + i * 0.06 }}
+                >
+                  <div className="flex items-center justify-between text-sm mb-1.5">
+                    <span className="text-white font-medium">{b.category}</span>
+                    <span className="text-[#4b5e7a]">
+                      ${b.used.toLocaleString()} / ${b.total.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="h-2 bg-[#2a3a55] rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${b.pct}%` }}
+                      transition={{ delay: 0.6 + i * 0.06, duration: 0.8, ease: "easeOut" }}
+                      className="h-full rounded-full"
+                      style={{
+                        background: b.pct >= 100 ? "#ef4444" : b.pct >= 80 ? "#f59e0b" : "#0062ff",
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-[10px] text-[#4b5e7a]">{b.pct}% used</span>
+                    {b.pct >= 100 && <span className="text-[10px] text-[#ef4444] font-medium">Budget exceeded</span>}
+                    {b.pct >= 80 && b.pct < 100 && <span className="text-[10px] text-[#f59e0b] font-medium">Near limit</span>}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </main>
+    </div>
+  );
+}

@@ -1,0 +1,37 @@
+# Claude config
+.claude/
+
+# Design & spec docs
+DESIGN.md
+spec.md
+
+# Next.js app (node_modules, build output, etc.)
+smallbox/node_modules/
+smallbox/.next/
+smallbox/out/
+smallbox/build/
+smallbox/.vercel/
+smallbox/coverage/
+smallbox/*.tsbuildinfo
+smallbox/next-env.d.ts
+smallbox/.pnp
+smallbox/.pnp.*
+smallbox/.yarn/*
+!smallbox/.yarn/patches
+!smallbox/.yarn/plugins
+!smallbox/.yarn/releases
+!smallbox/.yarn/versions
+
+# Env files
+smallbox/.env*
+.env*
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS
+.DS_Store
+*.pem
