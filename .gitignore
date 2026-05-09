@@ -1,9 +1,6 @@
 # Claude config
 .claude/
 
-# Design & spec docs
-DESIGN.md
-spec.md
 
 # Next.js app (node_modules, build output, etc.)
 smallbox/node_modules/
