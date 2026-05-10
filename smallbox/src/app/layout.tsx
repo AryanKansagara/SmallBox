@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { BeamsBackground } from "@/components/ui/beams-background";
+import { Space_Grotesk } from "next/font/google";
 
-const inter = Inter({
-  variable: "--font-sans",
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-fixel",
   display: "swap",
 });
 
@@ -19,9 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#0a0e1a] text-white">
-        {children}
+    <html lang="en" suppressHydrationWarning className={`${spaceGrotesk.variable} dark`}>
+      <body className={`min-h-full flex flex-col antialiased ${spaceGrotesk.className}`}>
+        <ThemeProvider>
+          <BeamsBackground fixed className="min-h-screen">
+            {children}
+          </BeamsBackground>
+        </ThemeProvider>
       </body>
     </html>
   );

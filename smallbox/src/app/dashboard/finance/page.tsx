@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { TiltCard } from "@/components/TiltCard";
+import { TiltCard } from "@/components/TiltCard";
 import {
   Plus,
   TrendingUp,
@@ -56,6 +58,7 @@ interface Transaction {
   category: string;
   amount: number;
   date: string;
+  month: string;
   month: string;
   type: TransactionType;
 }
@@ -240,6 +243,7 @@ export default function FinancePage() {
 
   const budgetUsed = useMemo(() => {
     const map: Record<string, number> = {};
+    thisMonthTxns.filter((t) => t.type === "expense").forEach((t) => { map[t.category] = (map[t.category] ?? 0) + t.amount; });
     thisMonthTxns.filter((t) => t.type === "expense").forEach((t) => { map[t.category] = (map[t.category] ?? 0) + t.amount; });
     return map;
   }, [thisMonthTxns]);
@@ -1039,8 +1043,10 @@ export default function FinancePage() {
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md">
               <div className="bg-[#111827] border border-[#2a3a55] rounded-2xl p-6 shadow-2xl">
                 <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-lg font-semibold text-white">Add Transaction</h3>
-                  <button onClick={() => setShowAddModal(false)} className="text-[#4b5e7a] hover:text-white transition-colors"><X size={18} /></button>
+                  <h3 className="text-lg font-semibold text-[#1d1d1f] dark:text-white">Add Transaction</h3>
+                  <button onClick={() => setShowAddModal(false)} className="text-black/35 dark:text-white/35 hover:text-black dark:hover:text-white transition-colors"><X size={18} /></button>
+                  <h3 className="text-lg font-semibold text-[#1d1d1f] dark:text-white">Add Transaction</h3>
+                  <button onClick={() => setShowAddModal(false)} className="text-black/35 dark:text-white/35 hover:text-black dark:hover:text-white transition-colors"><X size={18} /></button>
                 </div>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-2">
@@ -1090,7 +1096,8 @@ export default function FinancePage() {
         )}
       </AnimatePresence>
 
-      {/* ── BUDGET MODAL ── */}
+      {/* BUDGET MODAL */}
+      {/* BUDGET MODAL */}
       <AnimatePresence>
         {showBudgetModal && (
           <>

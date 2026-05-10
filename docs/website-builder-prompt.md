@@ -1,0 +1,249 @@
+# SmallBox — Product Specification
+**Version:** 1.0 (v1)
+**Last Updated:** 2026-05-08
+
+---
+
+## 1. Overview
+
+**SmallBox** is a self-serve web application that gives small business owners access to enterprise-grade tools — powered by IBM technologies — without requiring technical expertise or dedicated IT staff. Where large corporations can afford specialists to navigate IBM's ecosystem, SmallBox abstracts that complexity into a clean, intuitive dashboard any business owner can use.
+
+### Problem Statement
+IBM technologies offer powerful capabilities (AI, analytics, databases, CI/CD), but their interfaces and setup processes are designed for enterprise technical teams. Small businesses are locked out not because the tools aren't useful, but because they're too complex to adopt independently.
+
+### Solution
+A unified web dashboard where a small business owner can: build their website with AI, manage their finances, and run their marketing — all backed by IBM's free-tier services under the hood.
+
+---
+
+## 2. Competitive Positioning
+
+> *"Shopify helps you sell online. SmallBox helps you run your business — website, finances, and marketing in one place, powered by IBM AI, built for the businesses Shopify wasn't designed for."*
+
+### How SmallBox is Different from Shopify
+
+**Business Operating System, not just a website builder.**
+Shopify answers "how do I sell online?" SmallBox answers "how do I run my entire business?" A bakery on Shopify still needs a separate spreadsheet for budgeting, a separate tool for marketing, and a separate app for reviews. SmallBox replaces all of them — every tool shares the same business profile and talks to each other.
+
+**Built for the 90% Shopify ignores.**
+Shopify is optimized for product-based businesses with inventory and a shopping cart. The majority of small businesses globally — barbers, tutors, consultants, cleaners, caterers — don't need e-commerce. They need bookings, customer communication, and financial tracking. SmallBox is built for them.
+
+**Onboards from absolute zero.**
+Shopify still requires knowing what a theme is, what a SKU is, and how to set up a payment gateway. SmallBox's entire thesis is: describe your business in plain English and we handle the rest. It's designed for a business owner who has never built anything online.
+
+**Free to start, powered by IBM.**
+Shopify starts at $39/month. SmallBox runs on IBM free-tier services — enterprise-grade infrastructure at no upfront cost. For small businesses in emerging markets, that's the difference between getting online and not.
+
+**AI that explains your business, not just your sales.**
+Shopify shows you what happened. SmallBox tells you what it means — the Business Health Score, review sentiment analysis, budget insights, and competitor gap analysis give owners actionable intelligence, not just raw numbers.
+
+---
+
+## 3. UN Sustainable Development Goals Alignment
+
+| SDG | How SmallBox Addresses It |
+|-----|--------------------------|
+| **SDG 8** — Decent Work & Economic Growth | Empowers small business owners to compete with larger businesses by giving them access to the same quality of digital tools |
+| **SDG 9** — Industry, Innovation & Infrastructure | Democratizes access to IBM-grade infrastructure (cloud, AI, CI/CD) for businesses that couldn't otherwise afford it |
+| **SDG 10** — Reduced Inequalities | Closes the technology gap between large corporations (with dedicated IBM specialists) and small business owners globally |
+
+---
+
+## 3. Target Audience
+
+- **Who:** Small business owners globally (retail, food, services, e-commerce, etc.)
+- **Technical level:** Non-technical; no coding or cloud knowledge required
+- **Use case examples:** A local bakery in Mississauga wanting a website; a freelance consultant tracking monthly expenses; a clothing shop wanting to post AI-generated Instagram captions
+
+---
+
+## 4. App Structure
+
+**Delivery:** Web application (browser-based)
+**Layout:** Single dashboard with persistent sidebar navigation
+
+### Sidebar Navigation
+- 🏠 Home / Overview
+- 🌐 Website Builder
+- 💰 Finance & Budgeting
+- 📣 Marketing
+- *(v2)* 📦 Inventory Management
+- *(v2)* 🧾 Expense Receipt Scanner
+- *(v2)* 🔲 QR Code Generator
+- ⚙️ Settings / Account
+
+### Authentication
+- IBM Verify handles login, SSO, MFA, and session management
+- Users log in once and access all tools under their account
+
+---
+
+## 5. IBM Technologies Stack
+
+Each tool operates independently in v1, powered by the IBM free-tier services below. A unified watsonx.ai orchestration layer is planned for v2.
+
+| Layer | IBM Service | Free Tier | Purpose |
+|-------|------------|-----------|---------|
+| **AI Assistant** | watsonx.ai | Trial | Powers website generation, marketing copy, and AI Q&A per tool |
+| **Database** | IBM Cloudant | 1 GB forever-free | Stores user profiles, business info, website configs, finance records |
+| **Finance Analytics** | IBM Cloud SQL Query | 30 GB/day scan | Queries transaction data stored in Cloud Object Storage |
+| **Auth** | IBM Verify | 90-day trial | SSO, MFA, user lifecycle management |
+| **CI/CD / Deploy** | IBM Cloud Continuous Delivery | 500 jobs/month | Deploys generated websites to IBM Cloud |
+| **Monitoring** | IBM Instana | 14-day trial + sandbox | App performance monitoring, error alerts, uptime notifications |
+| **Sentiment Analysis** | Watson NLU | 1 custom model free | Analyzes customer reviews, extracts sentiment and keywords |
+| **Voice / Accessibility** | Watson TTS + STT | 10k chars + 500 min/month | Voice-enables chatbot and accessibility features on generated sites |
+
+---
+
+## 6. V1 Features
+
+### 6.1 Website Builder
+
+**Goal:** Generate a professional website for any small business through a guided questionnaire, then use Google Stitch to produce a deployable site.
+
+**User Flow:**
+1. User clicks "Website Builder" from the sidebar
+2. A step-by-step questionnaire collects website-specific details (one question at a time):
+   - What's the main thing you want visitors to do? (Call / Book / Contact / Learn more)
+   - Which pages do you need? (Home / About / Services / Contact / Gallery / FAQ)
+   - What's the vibe? (Clean & Professional / Bold & Modern / Warm & Friendly / Minimal & Elegant)
+   - Do you have a brand color? (hex input or "pick one for me")
+   - Do you have a logo? (optional upload)
+   - Any specific details to include? (hours, phone, address, social links)
+3. User reviews a summary of their answers and confirms before generation
+4. Answers are compiled into a structured Google Stitch prompt
+5. Google Stitch generates a complete Next.js + Tailwind CSS site
+6. User previews the generated site and can request edits before publishing
+
+**Services Used:**
+- `Google Stitch API` — sole generation engine; takes the compiled questionnaire answers and produces a complete, deployable Next.js + Tailwind site
+
+**Required Environment Variable:**
+```bash
+GOOGLE_STITCH_API_KEY=
+```
+
+**Out of scope for v1:** Watson AI layer, Cloudant storage, CI/CD auto-deploy, drag-and-drop editor, e-commerce, custom domains
+
+---
+
+### 6.2 Finance & Budgeting
+
+**Goal:** Give small business owners a simple way to track income, expenses, and budgets — either by manual entry or by uploading receipts/statements.
+
+**User Flow:**
+
+*Manual Entry:*
+1. User navigates to Finance tab
+2. Adds income or expense entries (amount, category, date, note)
+3. Dashboard shows: monthly summary, category breakdown (pie chart), income vs. expense trend (line chart)
+
+*Upload & Scan:*
+1. User uploads a receipt image or bank statement CSV/PDF
+2. Watson STT or OCR extracts line items and amounts
+3. Items are auto-categorized (food, rent, utilities, supplies, etc.) using watsonx.ai
+4. User reviews, confirms, or edits categorizations before saving
+
+*Budgeting:*
+1. User sets monthly budget targets per category
+2. Dashboard shows progress bars and alerts when nearing/exceeding budget
+3. End-of-month summary report auto-generated
+
+**IBM Services Used:**
+- `IBM Cloudant` — stores all transaction records per user
+- `IBM Cloud SQL Query` — runs analytics queries on transaction history
+- `watsonx.ai` — categorizes uploaded receipts and suggests budget insights
+- `Watson STT` — extracts text from audio/voice notes (optional)
+- `Instana` — monitors app health and API error rates
+
+**Out of scope for v1:** Bank API integrations (Plaid), tax filing, multi-currency
+
+---
+
+### 6.3 Marketing
+
+**Goal:** Help small business owners generate marketing content, send email campaigns, and understand how customers feel about their business.
+
+**Sub-features:**
+
+#### A. AI Content Generator
+1. User selects content type: Instagram caption, Facebook post, Google ad copy, or promotional email
+2. User inputs context: product/service to promote, tone, any key details
+3. watsonx.ai generates 3 variations
+4. User picks one, edits if needed, copies or schedules
+
+#### B. Email Campaign Builder
+1. User creates an email list (manual CSV upload or manual entry in v1)
+2. Chooses a template (promotional, newsletter, announcement)
+3. AI fills in suggested content based on business profile
+4. User reviews and sends (SMTP integration or IBM-managed send)
+
+#### C. Review Analyzer
+1. User pastes in customer reviews (Google, Yelp, manual)
+2. Watson NLU processes reviews: extracts overall sentiment, top positive themes, top complaints
+3. Dashboard displays: sentiment score, keyword cloud, trend over time (if multiple batches submitted)
+4. AI suggests 1–2 actionable improvements based on negative themes
+
+**IBM Services Used:**
+- `watsonx.ai` — content generation and improvement suggestions
+- `Watson NLU` — sentiment extraction from customer reviews
+- `IBM Cloudant` — stores campaigns, review history, content drafts
+- `Instana` — monitors email delivery success rates and errors
+
+**Out of scope for v1:** Native social media posting (API integrations), paid ad management, A/B testing
+
+---
+
+## 7. V2 Roadmap
+
+| Feature | Description |
+|---------|-------------|
+| **Unified AI Assistant** | watsonx.ai becomes a central chat layer — "Generate my weekly social posts" or "Show me this month's expenses" |
+| **Inventory Management** | Track stock levels, set low-stock alerts, log purchases |
+| **Expense Receipt Scanner** | Mobile camera scan → auto-extract and log expense |
+| **QR Code Generator** | Generate QR codes linking to website, menu, or payment page |
+| **Custom Domains** | Connect your own domain to the generated website |
+| **Blueworks Live Integration** | Let business owners map and improve their internal workflows |
+| **IBM RPA (Premium)** | Automate repetitive tasks (invoice sending, nightly reports) for businesses with budget |
+
+---
+
+## 8. Technical Architecture (High Level)
+
+```
+[Browser Dashboard]
+        |
+   [SmallBox API Layer — Next.js / Node.js]
+        |
+   ┌────┴──────────────────────────────────┐
+   │                                        │
+[IBM Cloudant]    [watsonx.ai]    [Watson NLU / TTS / STT]
+[IBM Verify]      [Cloud SQL]     [Continuous Delivery]
+[Instana]
+```
+
+- **Frontend:** Next.js + Tailwind CSS
+- **Backend:** Node.js API routes (Next.js serverless functions)
+- **Hosting:** IBM Cloud or Vercel
+- **Auth:** IBM Verify (OAuth/SSO)
+- **Database:** IBM Cloudant (NoSQL, JSON documents per user)
+- **AI:** watsonx.ai API calls from backend (API key secured server-side)
+
+---
+
+## 9. Out of Scope (All Versions)
+
+- Payment processing / e-commerce checkout
+- Accounting software integrations (QuickBooks, Xero)
+- Native mobile apps (web-responsive only in v1/v2)
+- White-labeling for agencies
+
+---
+
+## 10. Open Questions
+
+- [ ] What is the business model? (Free tier + paid upgrade, or fully free?)
+- [ ] Who hosts the generated websites long-term once IBM free trial expires?
+- [ ] Do users need their own IBM accounts, or does SmallBox hold one master IBM account?
+- [ ] What happens to user data when IBM free trial limits are hit?
+
