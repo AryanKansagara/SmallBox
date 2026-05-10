@@ -20,7 +20,7 @@ function FloatingPaths({ position }: { position: number }) {
   return (
     <div className="absolute inset-0 pointer-events-none">
       <svg
-        className="w-full h-full text-white"
+        className="w-full h-full text-black/25 dark:text-white"
         viewBox="0 0 696 316"
         fill="none"
       >
@@ -95,7 +95,7 @@ export function BackgroundPathsHero() {
                   className={
                     wordIndex >= 3
                       ? "inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#7b2fff] via-[#ff4dab] to-[#ff8c42]"
-                      : "inline-block text-white"
+                      : "inline-block text-[#1d1d1f] dark:text-white"
                   }
                 >
                   {letter}
@@ -110,7 +110,7 @@ export function BackgroundPathsHero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-lg text-white/55 mb-10 leading-relaxed max-w-xl mx-auto"
+          className="text-lg text-black/55 dark:text-white/55 mb-10 leading-relaxed max-w-xl mx-auto"
         >
           SmallBox gives your business the same IBM-powered AI, analytics, and
           automation that Fortune 500 companies use — with zero technical
@@ -138,7 +138,7 @@ export function BackgroundPathsHero() {
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="flex items-center gap-2 border border-white/15 hover:border-primary/35 text-white font-semibold px-8 py-3.5 rounded-full transition-all text-base backdrop-blur-sm bg-white/5"
+              className="flex items-center gap-2 border border-black/15 dark:border-white/15 hover:border-primary/35 text-[#1d1d1f] dark:text-white font-semibold px-8 py-3.5 rounded-full transition-all text-base backdrop-blur-sm bg-black/4 dark:bg-white/5"
             >
               View Dashboard
               <ChevronRight size={16} />
@@ -151,7 +151,7 @@ export function BackgroundPathsHero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="flex items-center justify-center gap-6 text-sm text-white/35 flex-wrap"
+          className="flex items-center justify-center gap-6 text-sm text-black/35 dark:text-white/35 flex-wrap"
         >
           {["No credit card required", "Free forever on IBM free tier", "Setup in under 5 minutes"].map((t) => (
             <span key={t} className="flex items-center gap-1.5">

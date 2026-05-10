@@ -28,7 +28,7 @@ export function Sidebar() {
     <aside className="w-60 shrink-0 h-screen sticky top-0 flex flex-col border-r border-black/8 dark:border-white/8 glass-strong dark:glass bg-white/82 dark:bg-transparent">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-black/8 dark:border-white/8">
-        <span className="text-white font-bold text-xl tracking-tight">SmallBox</span>
+        <span className="text-[#1d1d1f] dark:text-white font-bold text-xl tracking-tight">SmallBox</span>
       </div>
 
       {/* Navigation */}

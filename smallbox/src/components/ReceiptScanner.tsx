@@ -1,17 +1,5 @@
 "use client";
 
-/**
- * ReceiptScanner
- *
- * Uses Tesseract.js (client-side OCR — zero API credits) to extract text from
- * a receipt photo, parses the amount / date / merchant, then sends the merchant
- * name to /api/finance/categorize (one watsonx.ai call) to pre-fill the form.
- *
- * Supports both:
- *  - Camera capture (getUserMedia, rear-facing preferred)
- *  - Photo upload (drag-and-drop or file picker)
- */
-
 import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -48,7 +36,6 @@ interface Props {
 function parseReceiptText(text: string): { description: string; amount: number; date: string } {
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
 
-  // Find all dollar amounts; pick the "total" line if visible, else the largest
   const amtRegex = /\$?\s*(\d{1,6}[.,]\d{2})/g;
   const amounts: number[] = [];
   let match: RegExpExecArray | null;
@@ -65,7 +52,6 @@ function parseReceiptText(text: string): { description: string; amount: number; 
   }
   if (!amount && amounts.length > 0) amount = Math.max(...amounts);
 
-  // Date — common formats: MM/DD/YYYY, DD-MM-YYYY, "May 5, 2026"
   let date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
   const dateRegex =
     /\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s*\d{4})\b/i;
@@ -77,7 +63,6 @@ function parseReceiptText(text: string): { description: string; amount: number; 
     }
   }
 
-  // Description — first substantive line (not just digits/symbols/whitespace)
   const description =
     lines.find(
       (l) =>
@@ -91,6 +76,8 @@ function parseReceiptText(text: string): { description: string; amount: number; 
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
+
+const inputCls = "w-full bg-black/4 dark:bg-white/6 border border-black/10 dark:border-white/10 focus:border-primary/50 rounded-xl px-3 py-2 text-[#1d1d1f] dark:text-white text-sm placeholder:text-black/35 dark:placeholder:text-white/35 outline-none transition-colors mt-1";
 
 type Step = "choose" | "camera" | "preview";
 
@@ -112,7 +99,6 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
     streamRef.current = null;
   }, []);
 
-  // Clean up camera on unmount
   useEffect(() => () => stopCamera(), [stopCamera]);
 
   const startCamera = useCallback(async () => {
@@ -169,7 +155,6 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
       const parsed = parseReceiptText(text);
       setScanning(false);
 
-      // AI categorize — one call, uses local classifier if watsonx not configured
       setCategorizing(true);
       let category = "Other";
       let transactionType: "income" | "expense" = "expense";
@@ -180,10 +165,7 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
           body: JSON.stringify({ description: parsed.description, amount: parsed.amount }),
         });
         if (res.ok) {
-          const data = (await res.json()) as {
-            category: string;
-            transactionType: "income" | "expense";
-          };
+          const data = (await res.json()) as { category: string; transactionType: "income" | "expense" };
           category = data.category;
           transactionType = data.transactionType;
         }
@@ -191,7 +173,6 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
         // silently use defaults
       }
       setCategorizing(false);
-
       setForm({ ...parsed, category, transactionType });
     } catch (err) {
       console.error("OCR error:", err);
@@ -223,22 +204,22 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
         onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
       >
         <motion.div
-          className="bg-[#111827] border border-[#1e2d45] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl"
+          className="glass-strong border border-black/8 dark:border-white/8 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl"
           initial={{ scale: 0.95, opacity: 0, y: 12 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 12 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e2d45]">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-black/8 dark:border-white/8">
             <div className="flex items-center gap-2">
-              <ScanLine size={17} className="text-[#0062ff]" />
-              <span className="text-white font-semibold text-sm">Scan Receipt</span>
-              <span className="text-[10px] bg-[#0062ff]/10 text-[#0062ff] border border-[#0062ff]/20 rounded-full px-2 py-0.5 font-medium">
+              <ScanLine size={17} className="text-primary" />
+              <span className="text-[#1d1d1f] dark:text-white font-semibold text-sm">Scan Receipt</span>
+              <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 rounded-full px-2 py-0.5 font-medium">
                 OCR
               </span>
             </div>
-            <button onClick={handleClose} className="text-[#4b5e7a] hover:text-white transition-colors">
+            <button onClick={handleClose} className="text-black/35 dark:text-white/35 hover:text-black dark:hover:text-white transition-colors">
               <X size={17} />
             </button>
           </div>
@@ -248,28 +229,28 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
             {/* ── Step: Choose ── */}
             {step === "choose" && (
               <div className="space-y-3">
-                <p className="text-xs text-[#4b5e7a] text-center">
+                <p className="text-xs text-black/40 dark:text-white/40 text-center">
                   Take a photo or upload an image of your receipt. Text is read on-device — no data sent to OCR services.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={startCamera}
-                    className="flex flex-col items-center gap-3 p-6 rounded-xl border border-[#1e2d45] hover:border-[#0062ff]/50 hover:bg-[#0062ff]/5 transition-all"
+                    className="flex flex-col items-center gap-3 p-6 rounded-xl border border-black/8 dark:border-white/8 hover:border-primary/50 hover:bg-primary/5 transition-all"
                   >
-                    <Camera size={26} className="text-[#0062ff]" />
+                    <Camera size={26} className="text-primary" />
                     <div className="text-center">
-                      <div className="text-white text-sm font-medium">Camera</div>
-                      <div className="text-[#4b5e7a] text-[11px] mt-0.5">Take a photo</div>
+                      <div className="text-[#1d1d1f] dark:text-white text-sm font-medium">Camera</div>
+                      <div className="text-black/40 dark:text-white/40 text-[11px] mt-0.5">Take a photo</div>
                     </div>
                   </button>
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex flex-col items-center gap-3 p-6 rounded-xl border border-[#1e2d45] hover:border-[#0062ff]/50 hover:bg-[#0062ff]/5 transition-all"
+                    className="flex flex-col items-center gap-3 p-6 rounded-xl border border-black/8 dark:border-white/8 hover:border-primary/50 hover:bg-primary/5 transition-all"
                   >
-                    <ImageIcon size={26} className="text-[#0062ff]" />
+                    <ImageIcon size={26} className="text-primary" />
                     <div className="text-center">
-                      <div className="text-white text-sm font-medium">Upload</div>
-                      <div className="text-[#4b5e7a] text-[11px] mt-0.5">From your device</div>
+                      <div className="text-[#1d1d1f] dark:text-white text-sm font-medium">Upload</div>
+                      <div className="text-black/40 dark:text-white/40 text-[11px] mt-0.5">From your device</div>
                     </div>
                   </button>
                 </div>
@@ -288,19 +269,18 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
               <div className="space-y-3">
                 <div className="rounded-xl overflow-hidden bg-black aspect-[4/3] relative">
                   <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                  {/* Viewfinder corners */}
                   {["tl", "tr", "bl", "br"].map((pos) => (
-                    <div key={pos} className={`absolute w-6 h-6 ${pos.includes("t") ? "top-3" : "bottom-3"} ${pos.includes("l") ? "left-3" : "right-3"} border-2 border-[#0062ff] ${pos === "tl" ? "border-b-0 border-r-0 rounded-tl" : pos === "tr" ? "border-b-0 border-l-0 rounded-tr" : pos === "bl" ? "border-t-0 border-r-0 rounded-bl" : "border-t-0 border-l-0 rounded-br"}`} />
+                    <div key={pos} className={`absolute w-6 h-6 ${pos.includes("t") ? "top-3" : "bottom-3"} ${pos.includes("l") ? "left-3" : "right-3"} border-2 border-primary ${pos === "tl" ? "border-b-0 border-r-0 rounded-tl" : pos === "tr" ? "border-b-0 border-l-0 rounded-tr" : pos === "bl" ? "border-t-0 border-r-0 rounded-bl" : "border-t-0 border-l-0 rounded-br"}`} />
                   ))}
                   <canvas ref={canvasRef} className="hidden" />
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => { stopCamera(); setStep("choose"); }}
-                    className="px-4 py-2.5 rounded-xl border border-[#2a3a55] text-[#4b5e7a] hover:text-white text-sm transition-colors">
+                    className="px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white text-sm transition-colors">
                     Cancel
                   </button>
                   <button onClick={capturePhoto}
-                    className="flex-1 py-2.5 rounded-xl bg-[#0062ff] hover:bg-[#0052d4] text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                    className="flex-1 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2">
                     <Camera size={14} /> Capture
                   </button>
                 </div>
@@ -310,30 +290,26 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
             {/* ── Step: Preview + OCR + Form ── */}
             {step === "preview" && imageUrl && (
               <div className="space-y-4">
-                {/* Image preview */}
-                <div className="rounded-xl overflow-hidden bg-[#0a0f1a] max-h-44 flex items-center justify-center relative border border-[#1e2d45]">
+                <div className="rounded-xl overflow-hidden bg-black/10 dark:bg-black max-h-44 flex items-center justify-center relative border border-black/8 dark:border-white/8">
                   <img src={imageUrl} alt="Receipt" className="max-h-44 w-full object-contain" />
 
-                  {/* Scanning overlay */}
                   {scanning && (
                     <div className="absolute inset-0 bg-black/65 flex flex-col items-center justify-center gap-3">
                       <div className="relative">
-                        <ScanLine size={22} className="text-[#0062ff]" />
-                        {/* Animated scan line */}
+                        <ScanLine size={22} className="text-primary" />
                         <motion.div
-                          className="absolute left-0 right-0 h-0.5 bg-[#0062ff]/70"
+                          className="absolute left-0 right-0 h-0.5 bg-primary/70"
                           animate={{ top: ["10%", "90%", "10%"] }}
                           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                         />
                       </div>
                       <div className="text-white text-xs text-center">
                         Reading receipt...
-                        {scanProgress > 0 && <span className="text-[#0062ff] ml-1">{scanProgress}%</span>}
+                        {scanProgress > 0 && <span className="text-primary ml-1">{scanProgress}%</span>}
                       </div>
-                      {/* Progress bar */}
-                      <div className="w-32 h-1 bg-[#1e2d45] rounded-full overflow-hidden">
+                      <div className="w-32 h-1 bg-white/10 rounded-full overflow-hidden">
                         <motion.div
-                          className="h-full bg-[#0062ff] rounded-full"
+                          className="h-full bg-primary rounded-full"
                           style={{ width: `${scanProgress}%` }}
                           transition={{ duration: 0.3 }}
                         />
@@ -342,66 +318,64 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
                   )}
                 </div>
 
-                {/* Categorizing indicator */}
                 {!scanning && categorizing && (
-                  <div className="flex items-center gap-2 text-[#4b5e7a] text-xs">
-                    <Loader2 size={11} className="animate-spin text-[#0062ff]" />
+                  <div className="flex items-center gap-2 text-black/40 dark:text-white/40 text-xs">
+                    <Loader2 size={11} className="animate-spin text-primary" />
                     Categorizing with AI...
                   </div>
                 )}
 
-                {/* Editable form */}
                 {form && (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-400">
+                    <div className="flex items-center gap-1.5 text-xs text-[#10b981]">
                       <CheckCircle size={11} />
                       Receipt scanned — review and confirm
                     </div>
 
                     <div>
-                      <label className="text-[#4b5e7a] text-[10px] uppercase tracking-wide font-medium">Description</label>
+                      <label className="text-black/40 dark:text-white/40 text-[10px] uppercase tracking-wide font-medium">Description</label>
                       <input
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
-                        className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-3 py-2 text-white text-sm outline-none mt-1"
+                        className={inputCls}
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-[#4b5e7a] text-[10px] uppercase tracking-wide font-medium">Amount ($)</label>
+                        <label className="text-black/40 dark:text-white/40 text-[10px] uppercase tracking-wide font-medium">Amount ($)</label>
                         <input
                           type="number"
                           min="0"
                           step="0.01"
                           value={form.amount || ""}
                           onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
-                          className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-3 py-2 text-white text-sm outline-none mt-1"
+                          className={inputCls}
                         />
                       </div>
                       <div>
-                        <label className="text-[#4b5e7a] text-[10px] uppercase tracking-wide font-medium">Date</label>
+                        <label className="text-black/40 dark:text-white/40 text-[10px] uppercase tracking-wide font-medium">Date</label>
                         <input
                           value={form.date}
                           onChange={(e) => setForm({ ...form, date: e.target.value })}
-                          className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-3 py-2 text-white text-sm outline-none mt-1"
+                          className={inputCls}
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-[#4b5e7a] text-[10px] uppercase tracking-wide font-medium">Category</label>
+                        <label className="text-black/40 dark:text-white/40 text-[10px] uppercase tracking-wide font-medium">Category</label>
                         <select
                           value={form.category}
                           onChange={(e) => setForm({ ...form, category: e.target.value })}
-                          className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-3 py-2 text-white text-sm outline-none mt-1"
+                          className={inputCls}
                         >
                           {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="text-[#4b5e7a] text-[10px] uppercase tracking-wide font-medium">Type</label>
+                        <label className="text-black/40 dark:text-white/40 text-[10px] uppercase tracking-wide font-medium">Type</label>
                         <div className="flex gap-1 mt-1">
                           {(["expense", "income"] as const).map((t) => (
                             <button
@@ -410,9 +384,9 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
                               className={`flex-1 py-2 rounded-xl text-[11px] font-semibold capitalize transition-colors border ${
                                 form.transactionType === t
                                   ? t === "expense"
-                                    ? "bg-red-500/15 text-red-400 border-red-500/30"
-                                    : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                                  : "bg-[#1a2235] text-[#4b5e7a] border-[#2a3a55]"
+                                    ? "bg-[#ef4444]/15 text-[#ef4444] border-[#ef4444]/30"
+                                    : "bg-[#10b981]/15 text-[#10b981] border-[#10b981]/30"
+                                  : "bg-black/4 dark:bg-white/4 text-black/40 dark:text-white/40 border-black/10 dark:border-white/10"
                               }`}
                             >
                               {t}
@@ -425,14 +399,14 @@ export default function ReceiptScanner({ onClose, onConfirm }: Props) {
                     <div className="flex gap-2 pt-1">
                       <button
                         onClick={reset}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#2a3a55] text-[#4b5e7a] hover:text-white text-xs transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white text-xs transition-colors"
                       >
                         <RefreshCw size={11} /> Rescan
                       </button>
                       <button
                         onClick={() => onConfirm(form)}
                         disabled={!form.amount || !form.description.trim()}
-                        className="flex-1 py-2 rounded-xl bg-[#0062ff] hover:bg-[#0052d4] disabled:opacity-40 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 py-2 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-40 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                       >
                         <Upload size={13} /> Add Transaction
                       </button>

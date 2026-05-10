@@ -56,11 +56,11 @@ const testimonials = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen text-white overflow-x-hidden">
+    <div className="min-h-screen text-[#1d1d1f] dark:text-white overflow-x-hidden">
       {/* NAV */}
       <nav className="glass fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-6 md:px-12 border-b border-black/6 dark:border-white/6">
         <div className="flex items-center gap-2.5 flex-1">
-          <span className="font-bold text-xl tracking-tight text-white">SmallBox</span>
+          <span className="font-bold text-xl tracking-tight text-[#1d1d1f] dark:text-white">SmallBox</span>
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm text-black/50 dark:text-white/50">

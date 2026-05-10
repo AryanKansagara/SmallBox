@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { type NluAnalyzeResponse } from "@/lib/ibm-nlu";
@@ -63,6 +64,7 @@ const reviews = [
 const inputCls = "w-full bg-black/4 dark:bg-white/6 border border-black/10 dark:border-white/10 focus:border-primary/50 rounded-xl px-4 py-3 text-[#1d1d1f] dark:text-white text-sm placeholder:text-black/35 dark:placeholder:text-white/35 outline-none transition-colors resize-none";
 
 export default function MarketingPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"content" | "campaigns" | "reviews">("content");
   const [contentType, setContentType] = useState("instagram");
   const [prompt, setPrompt] = useState("");
@@ -283,23 +285,35 @@ export default function MarketingPage() {
       <DashboardHeader title="Marketing" subtitle="AI-powered content, email campaigns, and review insights" />
 
       <main className="flex-1 p-6 space-y-6">
-        {/* Tabs */}
-        <div className="flex items-center gap-1 p-1 bg-black/5 dark:bg-white/5 rounded-xl border border-black/8 dark:border-white/8 w-fit backdrop-blur-sm">
-          {[
-            { id: "content", label: "AI Content Generator", icon: Sparkles },
-            { id: "campaigns", label: "Email Campaigns", icon: Mail },
-            { id: "reviews", label: "Review Analyzer", icon: Star },
-          ].map((tab) => (
-            <motion.button
-              key={tab.id}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? "bg-primary text-white shadow-sm" : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"}`}
-            >
-              <tab.icon size={14} />
-              {tab.label}
-            </motion.button>
-          ))}
+        {/* Tabs + Create Graphic */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-1 p-1 bg-black/5 dark:bg-white/5 rounded-xl border border-black/8 dark:border-white/8 w-fit backdrop-blur-sm">
+            {[
+              { id: "content", label: "AI Content Generator", icon: Sparkles },
+              { id: "campaigns", label: "Email Campaigns", icon: Mail },
+              { id: "reviews", label: "Review Analyzer", icon: Star },
+            ].map((tab) => (
+              <motion.button
+                key={tab.id}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? "bg-primary text-white shadow-sm" : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"}`}
+              >
+                <tab.icon size={14} />
+                {tab.label}
+              </motion.button>
+            ))}
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.03, boxShadow: "0 0 18px rgba(123,47,255,0.3)" }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => router.push("/dashboard/marketing/graphics")}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium shadow-[0_0_16px_rgba(123,47,255,0.2)] transition-all"
+          >
+            <Image size={14} />
+            Create Graphic
+          </motion.button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -409,32 +423,32 @@ export default function MarketingPage() {
             <motion.div key="campaigns" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <div className="rounded-2xl border border-black/8 dark:border-white/8 glass-card p-6 space-y-5">
                 <div>
-                  <h3 className="font-semibold text-white mb-1">Email Campaign Builder</h3>
-                  <p className="text-xs text-[#4b5e7a]">Send AI-crafted emails to your customer list</p>
+                  <h3 className="font-semibold text-[#1d1d1f] dark:text-white mb-1">Email Campaign Builder</h3>
+                  <p className="text-xs text-black/40 dark:text-white/40">Send AI-crafted emails to your customer list</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Business Name</label>
+                    <label className="block text-sm font-medium text-black/55 dark:text-white/55 mb-2">Business Name</label>
                     <input
                       value={emailBusinessName}
                       onChange={(e) => setEmailBusinessName(e.target.value)}
-                      className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors"
+                      className={inputCls}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Audience</label>
+                    <label className="block text-sm font-medium text-black/55 dark:text-white/55 mb-2">Audience</label>
                     <input
                       value={emailAudience}
                       onChange={(e) => setEmailAudience(e.target.value)}
-                      className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors"
+                      className={inputCls}
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Tone</label>
+                    <label className="block text-sm font-medium text-black/55 dark:text-white/55 mb-2">Tone</label>
                     <div className="grid grid-cols-3 gap-2">
                       {emailTones.map((tone) => (
                         <button
@@ -443,8 +457,8 @@ export default function MarketingPage() {
                           onClick={() => setEmailTone(tone.id)}
                           className={`rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
                             emailTone === tone.id
-                              ? "bg-[#0062ff]/15 border-[#0062ff]/40 text-white"
-                              : "bg-[#1a2235] border-[#2a3a55] text-[#8b9cb6] hover:border-[#0062ff]/20"
+                              ? "bg-primary/12 border-primary/35 text-primary"
+                              : "bg-black/4 dark:bg-white/4 border-black/8 dark:border-white/8 text-black/50 dark:text-white/50 hover:border-primary/20"
                           }`}
                         >
                           {tone.label}
@@ -453,11 +467,11 @@ export default function MarketingPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Offer</label>
+                    <label className="block text-sm font-medium text-black/55 dark:text-white/55 mb-2">Offer</label>
                     <input
                       value={emailOffer}
                       onChange={(e) => setEmailOffer(e.target.value)}
-                      className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm outline-none transition-colors"
+                      className={inputCls}
                     />
                   </div>
                 </div>
@@ -480,7 +494,7 @@ export default function MarketingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#8b9cb6] mb-2">Email List</label>
+                  <label className="block text-sm font-medium text-black/55 dark:text-white/55 mb-2">Email List</label>
                   <textarea
                     value={emailRecipients}
                     onChange={(e) => {
@@ -489,15 +503,15 @@ export default function MarketingPage() {
                     }}
                     placeholder="Paste emails (one per line) or upload CSV..."
                     rows={4}
-                    className="w-full bg-[#1a2235] border border-[#2a3a55] focus:border-[#0062ff]/50 rounded-xl px-4 py-3 text-white text-sm placeholder:text-[#4b5e7a] outline-none resize-none transition-colors"
+                    className={inputCls}
                   />
                   <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
-                    <span className="text-[#8b9cb6]">{recipientCount} valid recipient{recipientCount === 1 ? "" : "s"}</span>
+                    <span className="text-black/50 dark:text-white/50">{recipientCount} valid recipient{recipientCount === 1 ? "" : "s"}</span>
                     {parsedRecipients.invalid.length > 0 && (
                       <span className="text-[#ef4444]">{parsedRecipients.invalid.length} invalid entr{parsedRecipients.invalid.length === 1 ? "y" : "ies"}</span>
                     )}
                   </div>
-                  <p className="text-xs text-[#4b5e7a] mt-1">Or <button className="text-[#0062ff] hover:underline">upload CSV file</button></p>
+                  <p className="text-xs text-black/40 dark:text-white/40 mt-1">Or <button className="text-primary hover:underline">upload CSV file</button></p>
                 </div>
 
                 <motion.button
@@ -505,7 +519,7 @@ export default function MarketingPage() {
                   whileTap={{ scale: 0.97 }}
                   onClick={handleGenerateEmailDraft}
                   disabled={emailGenerating}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0062ff] text-white font-semibold text-sm"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white font-semibold text-sm"
                 >
                   {emailGenerating ? (
                     <>
@@ -525,7 +539,7 @@ export default function MarketingPage() {
                 {emailError && <p className="text-sm text-[#ef4444]">{emailError}</p>}
                 {emailStatus && <p className="text-sm text-[#10b981]">{emailStatus}</p>}
                 {parsedRecipients.invalid.length > 0 && (
-                  <div className="rounded-xl border border-[#ef4444]/20 bg-[#1a2235] p-3 text-xs text-[#fca5a5]">
+                  <div className="rounded-xl border border-[#ef4444]/20 bg-[#ef4444]/8 p-3 text-xs text-[#ef4444]">
                     Invalid recipients: {parsedRecipients.invalid.join(", ")}
                   </div>
                 )}
@@ -533,12 +547,12 @@ export default function MarketingPage() {
 
               <div className="rounded-2xl border border-black/8 dark:border-white/8 glass-card p-6">
                 <div className="flex items-center justify-between mb-5">
-                  <h3 className="font-semibold text-white">Email Preview</h3>
+                  <h3 className="font-semibold text-[#1d1d1f] dark:text-white">Email Preview</h3>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={handleGenerateEmailDraft}
-                      className="flex items-center gap-1.5 text-xs text-[#8b9cb6] hover:text-white transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors"
                     >
                       <RefreshCw size={12} /> Regenerate
                     </button>
@@ -548,7 +562,7 @@ export default function MarketingPage() {
                 <div className="bg-white rounded-xl p-5 text-gray-800 shadow-sm">
                   <div className="border-b border-gray-100 pb-3 mb-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="w-6 h-6 rounded bg-[#0062ff] flex items-center justify-center">
+                      <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
                         <span className="text-white text-[8px] font-bold">SB</span>
                       </div>
                       <span className="font-bold text-sm">{emailBusinessName}</span>
@@ -561,7 +575,7 @@ export default function MarketingPage() {
                       <p key={paragraph}>{paragraph}</p>
                     ))}
                   </div>
-                  <div className="bg-[#0062ff] text-white text-center py-2.5 rounded-xl text-sm font-semibold mb-3">
+                  <div className="bg-primary text-white text-center py-2.5 rounded-xl text-sm font-semibold mb-3">
                     {draftPreview.ctaLabel}
                   </div>
                   <p className="text-xs text-gray-400 text-center">
@@ -570,7 +584,7 @@ export default function MarketingPage() {
                 </div>
 
                 {emailDraft === null && (
-                  <p className="mt-3 text-xs text-[#4b5e7a]">Preview is currently using the live draft generator defaults.</p>
+                  <p className="mt-3 text-xs text-black/40 dark:text-white/40">Preview is currently using the live draft generator defaults.</p>
                 )}
 
                 <div className="flex items-center gap-3 mt-4">
@@ -583,7 +597,7 @@ export default function MarketingPage() {
                     whileTap={{ scale: 0.96 }}
                     onClick={handleSendCampaign}
                     disabled={emailSending}
-                    className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0062ff] text-white text-sm font-semibold"
+                    className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold"
                   >
                     {emailSending ? (
                       <>
@@ -693,8 +707,8 @@ export default function MarketingPage() {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-white font-medium mb-1 capitalize">{analysisData.label} sentiment</p>
-                          <p className="text-xs text-[#4b5e7a]">Based on {analysisData.reviewCount} reviews analyzed by Watson NLU</p>
+                          <p className="text-sm text-[#1d1d1f] dark:text-white font-medium mb-1 capitalize">{analysisData.label} sentiment</p>
+                          <p className="text-xs text-black/40 dark:text-white/40">Based on {analysisData.reviewCount} reviews analyzed by Watson NLU</p>
                           <div className="flex gap-3 mt-3">
                             <span className={`flex items-center gap-1 text-xs ${
                               analysisData.label === "negative" ? "text-[#ef4444]" : analysisData.label === "neutral" ? "text-[#f59e0b]" : "text-[#10b981]"
