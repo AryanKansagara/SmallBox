@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { TiltCard } from "@/components/TiltCard";
-import { TiltCard } from "@/components/TiltCard";
 import {
   Plus,
   TrendingUp,
