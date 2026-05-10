@@ -3,7 +3,7 @@
 <div style="margin: -10px 0;" align="center">
            <br />
   <p align="center">
-    <a href="https://devpost.com/software/recall-y8i430">
+    <a href="https://devpost.com/software/smallbox">
       <strong>« IBM-UNSA DevPost »</strong>
                <br />
     </a>
@@ -15,7 +15,7 @@ SmallBox is a self-serve web application that democratizes access to enterprise-
 Real-time AI content generation answers "What should I post?" with one click. Intelligent expense categorization answers "Where is my money going?" with automatic transaction analysis. Sentiment analytics answers "What do customers really think?" with one-tap review analysis. All designed to be simple, private, and always on your side.
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=RnzwBhRtdv8">
+  <a href="https://youtu.be/H_ic6Z16sz8">
     <img src="https://img.shields.io/badge/▶️_Watch_Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Demo Video"/>
   </a>
 </div>
