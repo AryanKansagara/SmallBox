@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
@@ -51,23 +51,32 @@ export function BeamsBackground({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const beamsRef = useRef<Beam[]>([]);
   const animationFrameRef = useRef<number>(0);
-  const MINIMUM_BEAMS = 20;
+  const MINIMUM_BEAMS = 10;
 
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  const prefersReducedMotion = useMemo(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return false;
+    }
+
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
 
   const isDark = !mounted || resolvedTheme === "dark";
+  const shouldAnimate = isDark && !prefersReducedMotion;
 
   const opacityMap = { subtle: 0.7, medium: 0.85, strong: 1 };
 
   useEffect(() => {
-    if (!isDark) return;
+    if (!shouldAnimate) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    let isVisible = !document.hidden;
 
     const updateCanvasSize = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -75,10 +84,10 @@ export function BeamsBackground({
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       beamsRef.current = Array.from(
-        { length: Math.round(MINIMUM_BEAMS * 1.5) },
+        { length: MINIMUM_BEAMS },
         () => createBeam(canvas.width, canvas.height)
       );
     };
@@ -126,9 +135,9 @@ export function BeamsBackground({
     }
 
     function animate() {
-      if (!canvas || !ctx) return;
+      if (!canvas || !ctx || !isVisible) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.filter = "blur(35px)";
+      ctx.filter = "blur(18px)";
 
       const totalBeams = beamsRef.current.length;
       beamsRef.current.forEach((beam, index) => {
@@ -143,11 +152,23 @@ export function BeamsBackground({
 
     animate();
 
+    const handleVisibilityChange = () => {
+      isVisible = !document.hidden;
+      if (isVisible) {
+        animate();
+      } else if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       window.removeEventListener("resize", updateCanvasSize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [intensity, isDark]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [intensity, shouldAnimate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const posClass = fixed ? "fixed" : "absolute";
 
@@ -165,15 +186,15 @@ export function BeamsBackground({
           <canvas
             ref={canvasRef}
             className={cn(posClass, "inset-0 z-0")}
-            style={{ filter: "blur(15px)" }}
+            style={{ filter: "blur(10px)" }}
           />
 
           {/* Subtle pulsing overlay */}
           <motion.div
             className={cn(posClass, "inset-0 z-0 bg-[#07080f]/5")}
-            animate={{ opacity: [0.05, 0.15, 0.05] }}
-            transition={{ duration: 10, ease: "easeInOut", repeat: Infinity }}
-            style={{ backdropFilter: "blur(50px)" }}
+            animate={shouldAnimate ? { opacity: [0.04, 0.08, 0.04] } : { opacity: 0.04 }}
+            transition={shouldAnimate ? { duration: 14, ease: "easeInOut", repeat: Infinity } : { duration: 0 }}
+            style={{ backdropFilter: "blur(18px)" }}
           />
         </>
       )}

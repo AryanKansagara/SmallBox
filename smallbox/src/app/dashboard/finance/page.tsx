@@ -58,7 +58,6 @@ interface Transaction {
   amount: number;
   date: string;
   month: string;
-  month: string;
   type: TransactionType;
 }
 

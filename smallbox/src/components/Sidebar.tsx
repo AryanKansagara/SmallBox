@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Globe,
@@ -39,11 +38,9 @@ export function Sidebar() {
             (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
             <Link key={item.href} href={item.href}>
-              <motion.div
-                whileHover={{ x: 2 }}
-                transition={{ duration: 0.15 }}
+              <div
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group",
                   active
                     ? "bg-primary/12 dark:bg-primary/15 text-primary border border-primary/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
                     : "text-black/55 dark:text-white/55 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
@@ -60,7 +57,7 @@ export function Sidebar() {
                 />
                 <span className="flex-1">{item.label}</span>
                 {active && <ChevronRight size={14} className="text-primary" />}
-              </motion.div>
+              </div>
             </Link>
           );
         })}

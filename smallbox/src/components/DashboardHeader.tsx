@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Bell, Search } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -33,18 +32,15 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
         <ThemeToggle />
 
         {/* Notifications */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <button
           className="relative w-9 h-9 rounded-xl bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/8 flex items-center justify-center hover:border-primary/40 transition-all"
         >
           <Bell size={16} className="text-black/55 dark:text-white/55" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />
-        </motion.button>
+        </button>
 
         {/* User */}
-        <motion.div
-          whileHover={{ scale: 1.02 }}
+        <div
           className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/8 cursor-pointer hover:border-primary/40 transition-all"
         >
           <Avatar className="w-6 h-6">
@@ -55,7 +51,7 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
           <span className="text-sm font-medium text-[#1d1d1f] dark:text-white hidden sm:block">
             My Business
           </span>
-        </motion.div>
+        </div>
       </div>
     </header>
   );
